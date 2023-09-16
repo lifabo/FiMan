@@ -1,7 +1,7 @@
 @extends('base_layout')
 
 @section('pageHeading')
-    <h1 class="pageHeading">FiMan</h1>
+    FiMan
 @endsection
 
 @section('content')

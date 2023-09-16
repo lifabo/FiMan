@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Expense;
 use App\Models\UserAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -123,13 +124,13 @@ class WebController extends Controller
 
 
 
-    #region category stuff
+    #region category
     public function showCategories()
     {
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
-            $categories = Category::all();
+            $categories = Category::where("userAccountID", session("loggedInUserID"))->get();
 
             return view("categories", [
                 "categories" => $categories
@@ -139,7 +140,7 @@ class WebController extends Controller
 
     public function checkIfCategoryExists($title)
     {
-        if (Category::where("title", $title)->first() != null)
+        if (Category::where("title", $title)->where("userAccountID", session("loggedInUserID"))->first() != null)
             return true;
         else
             return false;
@@ -224,6 +225,104 @@ class WebController extends Controller
 
             session()->flash("status", "Kategorie erfolgreich gelöscht.");
             return redirect("/categories");
+        }
+    }
+    #endregion
+
+
+
+
+
+    #region expense
+    public function showExpenses()
+    {
+        if (!session()->has('loggedInUsername'))
+            return redirect("/login");
+        else {
+
+            $expenses = Expense::join("category", "expense.categoryID", "category.ID")
+                ->select("expense.*", "category.title as categoryTitle")
+                ->get();
+
+            $categories = Category::where("userAccountID", session("loggedInUserID"))->get();
+
+            return view("expenses", [
+                "expenses" => $expenses,
+                "categories" => $categories
+            ]);
+        }
+    }
+
+    public function addExpense(Request $request)
+    {
+        if (!session()->has('loggedInUsername'))
+            return redirect("/login");
+        else {
+            Expense::create([
+                "timestamp" => $request->input("timestamp"),
+                "amount" => $request->input("amount"),
+                "description" => $request->input("description"),
+                "categoryID" => $request->input("category"),
+                "bankAccountID" => "1"
+            ]);
+
+            session()->flash("status", "Ausgabe erfolgreich erstellt.");
+            return redirect("/expenses");
+        }
+    }
+
+
+    public function editExpense($id)
+    {
+        $dbExpenseData = Expense::where("id", $id)->first();
+        $dbCategoryOfExpense = Category::where("id", $dbExpenseData->categoryID)->first();
+
+        // expense with $id does not exist
+        if ($dbExpenseData == null)
+            return redirect("/expenses");
+        else {
+            session()->put("currentExpenseEditingID", $id);
+
+            $shouldOpenModal = "edit";
+            return redirect("/expenses")->with([
+                "shouldOpenModal" => $shouldOpenModal,
+                "timestamp" => $dbExpenseData->timestamp,
+                "amount" => $dbExpenseData->amount,
+                "description" => $dbExpenseData->description,
+                "categoryID" => $dbCategoryOfExpense->id
+            ]);
+        }
+    }
+
+    public function verifyExpenseEditing(Request $request)
+    {
+        // update expense
+        Expense::where("id", session("currentExpenseEditingID"))->first()->update([
+            "timestamp" => $request->input("timestamp"),
+            "amount" => $request->input("amount"),
+            "description" => $request->input("description"),
+            "categoryID" => $request->input("category"),
+            "bankAccountID" => "1"
+        ]);
+
+        session()->forget("currentExpenseEditingID");
+
+        session()->flash("status", "Ausgabe erfolgreich bearbeitet.");
+        return redirect("/expenses");
+    }
+
+    public function deleteExpense($id)
+    {
+        $dbExpenseData = Expense::where("id", $id)->first();
+
+        // expense with $id does not exist
+        if ($dbExpenseData == null)
+            return redirect("/expenses");
+        else {
+            Expense::where("id", $id)->first()->delete();
+
+            session()->flash("status", "Ausgabe erfolgreich gelöscht.");
+            return redirect("/expenses");
         }
     }
     #endregion

@@ -1,7 +1,7 @@
 @extends('base_layout')
 
 @section('pageHeading')
-    <h1 class="pageHeading">Konto erstellen</h1>
+    Konto erstellen
 @endsection
 
 @section('content')

@@ -16,17 +16,24 @@ use Illuminate\Support\Facades\Route;
 
 // views
 Route::get('/', [WebController::class, "showHomepage"]);
-Route::get('/categories', [WebController::class, "showCategories"]);
 
 // login/register
+Route::get('/login', [WebController::class, "showLogin"]);
 Route::get("/register", [WebController::class, "showRegister"]);
 Route::post("/verifyAccountCreation", [WebController::class, "verifyAccountCreation"]);
-Route::get('/login', [WebController::class, "showLogin"]);
 Route::post('/loginVerification', [WebController::class, "verifyLogin"]);
 Route::get("/logout", [WebController::class, "logout"]);
 
 // category
+Route::get('/categories', [WebController::class, "showCategories"]);
 Route::post("/addCategory", [WebController::class, "addCategory"]);
 Route::get("/category/edit/{id}", [WebController::class, "editCategory"])->name("category.edit");
 Route::post("/verifyCategoryEditing", [WebController::class, "verifyCategoryEditing"]);
-Route::get("/category/delete/{id}", [WebController::class, "deleteCategory"])->name("category.delete");
+Route::delete("/category/delete/{id}", [WebController::class, "deleteCategory"])->name("category.delete");
+
+// expense
+Route::get("/expenses", [WebController::class, "showExpenses"]);
+Route::post("/addExpense", [WebController::class, "addExpense"]);
+Route::get("/expense/edit/{id}", [WebController::class, "editExpense"])->name("expense.edit");
+Route::post("/verifyExpenseEditing", [WebController::class, "verifyExpenseEditing"]);
+Route::delete("/expense/delete/{id}", [WebController::class, "deleteExpense"])->name("expense.delete");

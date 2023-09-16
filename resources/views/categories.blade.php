@@ -5,7 +5,7 @@
 @endsection
 
 @section('pageHeading')
-    <h1 class="pageHeading">Kategorien</h1>
+    Kategorien
 @endsection
 
 @section('content')
@@ -14,11 +14,10 @@
         const shouldOpenModal = @json(session('shouldOpenModal'));
     </script>
 
-    <button id="btnAddCategory" class="btnBase">Kategorie hinzufügen</button>
+    <button id="btnOpenAddModal" class="btnBase">Kategorie hinzufügen</button>
     <table class="tblCategories">
         <thead>
             <tr>
-                <th hidden>asdasd</th>
                 <th>Name</th>
                 <th>Bearbeiten</th>
                 <th>Löschen</th>
@@ -27,20 +26,19 @@
         <tbody>
             @foreach ($categories as $category)
                 <tr>
-                    <td hidden>{{ $category->id }}</td>
                     <td>{{ $category->title }}</td>
+                    <td><a href="{{ route('category.edit', ['id' => $category->id]) }}"><img src="/img/edit_darkmode.png"
+                                class="tblIcons"></a></td>
+
+                    {{-- <td><a href="{{ route('category.delete', ['id' => $category->id]) }}"><img src="/img/delete_darkmode.png"
+                                class="tblIcons"></a></td> --}}
                     <td>
-                        <form action="{{ route('category.edit', ['id' => $category->id]) }}" method="get">
-                            <button type="submit">
-                                <img src="/img/edit_darkmode.png" class="tblIcons">
-                            </button>
+                        <form action="{{ route('category.delete', ['id' => $category->id]) }}" method="post">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"><img src="/img/delete_darkmode.png" class="tblIcons"></button>
                         </form>
                     </td>
-
-                    {{-- <td><a href="{{ route('category.edit', ['id' => $category->id]) }}"><img src="/img/edit_darkmode.png"
-                                class="tblIcons"></a></td> --}}
-                    <td><a href="{{ route('category.delete', ['id' => $category->id]) }}"><img src="/img/delete_darkmode.png"
-                                class="tblIcons"></a></td>
                 </tr>
             @endforeach
         </tbody>
