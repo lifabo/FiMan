@@ -140,7 +140,7 @@ class WebController extends Controller
 
     public function checkIfCategoryExists($title)
     {
-        if (Category::where("title", $title)->where("userAccountID", session("loggedInUserID"))->first() != null)
+        if (Category::where("title", $title)->where("userAccountID", session("loggedInUserID"))->where("id", "!=", session("currentCategoryEditingID"))->first() != null)
             return true;
         else
             return false;
@@ -151,8 +151,11 @@ class WebController extends Controller
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
+            // title unqualified (null or whitespaces)
+            if ($request->input("title") == "" || trim($request->input("title") == "")) {
+            }
             // category already exists
-            if ($this->checkIfCategoryExists($request->input("title"))) {
+            else if ($this->checkIfCategoryExists($request->input("title"))) {
                 session()->flash("modalStatus", "Eine Kategorie mit dem Namen " . $request->input('title') . " existiert bereits.");
                 $shouldOpenModal = "add";
                 return redirect("/categories")->with([
@@ -191,9 +194,25 @@ class WebController extends Controller
 
     public function verifyCategoryEditing(Request $request)
     {
+        $error = false;
+
+        // error handling
         // category already exists
         if ($this->checkIfCategoryExists($request->input("title"))) {
-            session()->flash("modalStatus", "Eine Kategorie mit dem Namen " . $request->input('title') . " existiert bereits.");
+            $error = true;
+
+            session()->flash("modalStatus", "Eine Kategorie mit dem Namen '" . $request->input('title') . "' existiert bereits.");
+        }
+        //  null or only whitespaces
+        else if ($request->input("title") == null || trim($request->input("title")) == "") {
+            $error = true;
+
+            session()->flash("modalStatus", "Der Name der Kategorie darf nicht leer sein oder nur aus Leerzeichen bestehen.");
+        }
+
+
+        //  error has occured
+        if ($error) {
             $shouldOpenModal = "edit";
             return redirect("/categories")->with([
                 "shouldOpenModal" => $shouldOpenModal,

@@ -1,7 +1,7 @@
 @extends('base_layout')
 
 @section('head')
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    {{-- <script src="{{ asset('js/modalHandling.js') }}" defer></script> --}}
 @endsection
 
 @section('pageHeading')
