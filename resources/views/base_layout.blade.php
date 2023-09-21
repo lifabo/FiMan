@@ -57,7 +57,7 @@
 
 
     <div class="container">
-        <h1 class="mt-5">@yield('pageHeading')</h1>
+        <h1 class="mt-3">@yield('pageHeading')</h1>
         <p class="lead">@yield('pageDescription')</p>
         @yield('content')
     </div>

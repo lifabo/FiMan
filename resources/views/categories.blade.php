@@ -17,17 +17,19 @@
     <script>
         // in case creation oder editing of category fails, modal should stay open and display an error message
         const shouldOpenModal = @json(session('shouldOpenModal'));
+        const confirmDeleteTitle = @json(session('confirmDeleteTitle'));
+        const showAlert = @json(session('showAlert'));
 
         $(document).ready(function() {
-            document.getElementById("btnDismissChanges").addEventListener("click", function() {
-                //console.log("testarne");
-                window.location.reload();
-            });
+
         });
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
-        data-bs-target="#categoryModal">Kategorie hinzufügen</button>
+        data-bs-target="#categoryModal">Kategorie erstellen</button>
+
+    <div id="alertDiv" class="alert alert-success d-none" role="alert">{{ session('status') }}</div>
+
     <table class="table table-white table-hover table-bordered">
         <thead>
             <tr>
@@ -76,46 +78,35 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Kategorie
-                        @if (session('shouldOpenModal') == 'edit')
-                            {{ 'bearbeiten' }}
-                        @else
-                            {{ 'hinzufügen' }}
-                        @endif
-                    </h5>
+                        {{ session('shouldOpenModal') == 'edit' ? 'bearbeiten' : 'erstellen' }}</h5>
                 </div>
 
-                <form
-                    action=@if (session('shouldOpenModal') == 'edit') {{ '/verifyCategoryEditing' }}
-                        @else
-                        {{ '/addCategory' }} @endif
+                <form action="{{ session('shouldOpenModal') == 'edit' ? '/verifyCategoryEditing' : '/addCategory' }}"
                     method="post">
-
                     <div class="modal-body">
                         @csrf
                         <div class="form-group">
-                            <label for="txtName" class="py-2">Name der Kategorie</label>
-                            <input id="txtName" type="text" class="form-control" aria-describedby="titleUniqueInfo"
-                                name="title" placeholder="Name" autocomplete="off" required
-                                value="{{ session('title') }}">
+                            <label for="txtTitle" class="py-2">Name der Kategorie</label>
+                            <input id="txtTitle" type="text" class="form-control" aria-describedby="titleUniqueInfo"
+                                name="title"
+                                placeholder="{{ session('shouldOpenModal') == 'edit' ? session('title') : 'z.B. Urlaub' }}"
+                                autocomplete="off" required value="{{ session('title') }}">
+
                             {{-- <small class="form-text text-muted" id="titleUniqueInfo">Beachte, dass du nicht zwei
                                 Kategorien mit dem
                                 selben Namen erstellen kannst.</small> --}}
                         </div>
 
-
                         <p class="text-danger mb-0 mt-3">{{ session('modalStatus') }}</p>
                     </div>
 
                     <div class="modal-footer">
-                        <button id="btnDismissChanges" class="btn btn-danger" type="button"
-                            data-bs-dismiss="modal">Änderungen
-                            verwerfen</button>
-                        <button class="btn btn-primary" type="submit">Kategorie
-                            @if (session('shouldOpenModal') == 'edit')
-                                {{ 'bearbeiten' }}
-                            @else
-                                {{ 'hinzufügen' }}
-                            @endif
+                        <button id="btnDismissChanges" class="btn btn-danger" type="button" data-bs-dismiss="modal">
+                            Verwerfen
+                        </button>
+
+                        <button class="btn btn-primary"
+                            type="submit">{{ session('shouldOpenModal') == 'edit' ? 'Bearbeiten' : 'Erstellen' }}
                         </button>
                     </div>
                 </form>
@@ -124,35 +115,35 @@
     </div>
 
 
-
-    {{-- <div id="editModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="confirmDeleteModal" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Kategorie bearbeiten</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Löschen bestätigen</h5>
                 </div>
+                <div class="modal-body">
+                    <p class="text-danger mb-0">Die Kategorie wird noch in
+                        {{ session('usageCount') }} Ausgaben verwendet.</p>
 
-                <form action="/verifyCategoryEditing" method="post">
-                    <div class="modal-body">
+                    <label for="txtTitleDelete" class="py-2">Bist du dir sicheeeeer?</label>
+
+                    <input id="txtTitleDelete" type="text" class="form-control" aria-describedby="titleUniqueInfo"
+                        placeholder="{{ session('confirmDeleteTitle') }}" autocomplete="off" required>
+
+                    <small class="form-text text-muted" id="titleUniqueInfo">Zum löschen tippe bitte
+                        "{{ session('confirmDeleteTitle') }}" ein.</small>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnDismissChanges" class="btn btn-primary" type="button"
+                        data-bs-dismiss="modal">Abbrechen</button>
+
+                    <form action="/confirmDeletion" method="post">
                         @csrf
-                        <label for="txtName" class="py-2">Name der Kategorie</label>
-                        <input id="txtName" type="text" class="form-control" aria-describedby="titleUniqueInfo"
-                            name="title" placeholder="Name" autocomplete="off" value="{{ session('title') }}">
-                        <small class="form-text text-muted" id="titleUniqueInfo">Beachte, dass du nicht zwei
-                            Kategorien mit dem
-                            selben Namen erstellen kannst.</small>
-
-                        <p class="text-danger mb-0 mt-3">{{ session('modalStatus') }}</p>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-danger btnDismissChanges" type="button" data-bs-dismiss="modal">Änderungen
-                            verwerfen</button>
-                        <button class="btn btn-primary" type="submit">Kategorie bearbeiten</button>
-                    </div>
-                </form>
+                        @method('DELETE')
+                        <button class="btn btn-danger disabled" id="btnConfirmDelete" type="submit">Löschen</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 @endsection

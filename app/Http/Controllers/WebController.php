@@ -125,6 +125,13 @@ class WebController extends Controller
 
 
     #region category
+
+    public function test($id)
+    {
+        Category::where("id", $id)->first()->delete();
+        return redirect("/categories");
+    }
+
     public function showCategories()
     {
         if (!session()->has('loggedInUsername'))
@@ -156,7 +163,7 @@ class WebController extends Controller
             }
             // category already exists
             else if ($this->checkIfCategoryExists($request->input("title"))) {
-                session()->flash("modalStatus", "Eine Kategorie mit dem Namen " . $request->input('title') . " existiert bereits.");
+                session()->flash("modalStatus", "Eine Kategorie mit dem Namen '" . $request->input('title') . "' existiert bereits.");
                 $shouldOpenModal = "add";
                 return redirect("/categories")->with([
                     "shouldOpenModal" => $shouldOpenModal,
@@ -168,7 +175,8 @@ class WebController extends Controller
                     "userAccountID" => session("loggedInUserID")
                 ]);
 
-                session()->flash("status", "Kategorie " . $request->input('title') . " erfolgreich erstellt.");
+                session()->flash("status", "Kategorie '" . $request->input('title') . "' erfolgreich erstellt.");
+                session()->flash("showAlert", "true");
                 return redirect("/categories");
             }
         }
@@ -228,6 +236,7 @@ class WebController extends Controller
             session()->forget("currentCategoryEditingID");
 
             session()->flash("status", "Kategorie erfolgreich umbenannt.");
+            session()->flash("showAlert", "true");
             return redirect("/categories");
         }
     }
@@ -240,11 +249,27 @@ class WebController extends Controller
         if ($dbCategoryData == null)
             return redirect("/categories");
         else {
-            Category::where("id", $id)->first()->delete();
+            $dbCategoryUsageCount = Expense::where("categoryID", $id)->count();
+            session()->put("currentCategoryDeletingID", $id);
+            $shouldOpenModal = "confirmDelete";
 
-            session()->flash("status", "Kategorie erfolgreich gelöscht.");
-            return redirect("/categories");
+            return redirect("/categories")->with([
+                "shouldOpenModal" => $shouldOpenModal,
+                "confirmDeleteTitle" => $dbCategoryData->title,
+                "usageCount" => $dbCategoryUsageCount
+            ]);
         }
+    }
+
+    public function confirmDeletion()
+    {
+        Category::where("id", session("currentCategoryDeletingID"))->first()->delete();
+
+        session()->forget("currentCategoryDeletingID");
+        session()->flash("status", "Kategorie erfolgreich gelöscht.");
+        session()->flash("showAlert", "true");
+
+        return redirect("/categories");
     }
     #endregion
 
@@ -286,6 +311,7 @@ class WebController extends Controller
             ]);
 
             session()->flash("status", "Ausgabe erfolgreich erstellt.");
+            session()->flash("showAlert", "true");
             return redirect("/expenses");
         }
     }
@@ -327,6 +353,7 @@ class WebController extends Controller
         session()->forget("currentExpenseEditingID");
 
         session()->flash("status", "Ausgabe erfolgreich bearbeitet.");
+        session()->flash("showAlert", "true");
         return redirect("/expenses");
     }
 
@@ -341,6 +368,7 @@ class WebController extends Controller
             Expense::where("id", $id)->first()->delete();
 
             session()->flash("status", "Ausgabe erfolgreich gelöscht.");
+            session()->flash("showAlert", "true");
             return redirect("/expenses");
         }
     }

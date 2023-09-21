@@ -16,10 +16,10 @@ return new class extends Migration
             $table->date('timestamp');
             $table->double('amount');
             $table->string('description', 300);
-            $table->unsignedInteger('categoryID');
+            $table->unsignedInteger('categoryID')->nullable();
             $table->unsignedInteger('bankAccountID');
 
-            $table->foreign('categoryID')->references('id')->on('category');
+            $table->foreign('categoryID')->references('id')->on('category')->onDelete("set null");
             $table->foreign('bankAccountID')->references('id')->on('bank_account');
         });
     }
