@@ -261,7 +261,7 @@ class WebController extends Controller
         }
     }
 
-    public function confirmDeletion()
+    public function confirmCategoryDeletion()
     {
         Category::where("id", session("currentCategoryDeletingID"))->first()->delete();
 
@@ -365,12 +365,23 @@ class WebController extends Controller
         if ($dbExpenseData == null)
             return redirect("/expenses");
         else {
-            Expense::where("id", $id)->first()->delete();
+            session()->put("currentExpenseDeletingID", $id);
+            $shouldOpenModal = "confirmDelete";
 
-            session()->flash("status", "Ausgabe erfolgreich gelöscht.");
-            session()->flash("showAlert", "true");
-            return redirect("/expenses");
+            return redirect("/expenses")->with([
+                "shouldOpenModal" => $shouldOpenModal,
+            ]);
         }
+    }
+
+    public function confirmExpenseDeletion()
+    {
+        Expense::where("id", session("currentExpenseDeletingID"))->first()->delete();
+
+        session()->forget("currentExpenseDeletingID");
+        session()->flash("status", "Ausgabe erfolgreich gelöscht.");
+        session()->flash("showAlert", "true");
+        return redirect("/expenses");
     }
     #endregion
 }

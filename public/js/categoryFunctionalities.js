@@ -2,6 +2,7 @@ $(document).ready(function () {
     // in case creation of category/expense fails, modal should stay open and display an error message
     if (shouldOpenModal == "add" || shouldOpenModal == "edit") {
         $('#categoryModal').modal('show');
+        console.log("expense modal show");
     } else if (shouldOpenModal == "confirmDelete") {
         $('#confirmDeleteModal').modal('show');
     }
@@ -46,7 +47,8 @@ $(document).ready(function () {
     }
     //#endregion
 
-    //#region reload page when click on cancel while adding/editing a category
+    //#region reload page when click on cancel while adding/editing a category/expense
+
     document.getElementById("btnDismissChanges").addEventListener("click", function () {
         window.location.reload();
     });
