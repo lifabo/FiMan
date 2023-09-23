@@ -12,7 +12,7 @@ class UserAccount extends Model
 
     protected $table = 'user_account';
 
-    protected $fillable = ["username", "passwd"];
+    protected $fillable = ["username", "passwd", "lastLogin", "lastLoginError", "errorCountBeforeLastLogin"];
 
     public $timestamps = false;
 }

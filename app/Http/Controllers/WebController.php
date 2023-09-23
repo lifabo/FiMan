@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankAccount;
 use App\Models\Category;
 use App\Models\Expense;
 use App\Models\UserAccount;
@@ -90,6 +91,7 @@ class WebController extends Controller
 
     public function verifyLogin(Request $request)
     {
+        //$this->testAccountPW("admin");
         $formUserName = $request->input("username");
         $formPassword = $request->input("password");
         $dbUserData = UserAccount::where('username', $formUserName)->first();
@@ -290,9 +292,12 @@ class WebController extends Controller
 
             $categories = Category::where("userAccountID", session("loggedInUserID"))->get();
 
+            $bankAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))->get();
+
             return view("expenses", [
                 "expenses" => $expenses,
-                "categories" => $categories
+                "categories" => $categories,
+                "bankAccounts" => $bankAccounts
             ]);
         }
     }
@@ -382,6 +387,23 @@ class WebController extends Controller
         session()->flash("status", "Ausgabe erfolgreich gelöscht.");
         session()->flash("showAlert", "true");
         return redirect("/expenses");
+    }
+    #endregion
+
+
+    #region bank account
+    public function showBankAccounts()
+    {
+        if (!session()->has('loggedInUsername'))
+            return redirect("/login");
+        else {
+
+            $bankAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))->get();
+
+            return view("bankAccounts", [
+                "bankAccounts" => $bankAccounts
+            ]);
+        }
     }
     #endregion
 }

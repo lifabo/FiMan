@@ -15,6 +15,9 @@ return new class extends Migration
             $table->increments('id');
             $table->string('username', 50)->unique();
             $table->string('passwd', 100);
+            $table->dateTime("lastLogin");
+            $table->dateTime("lastLoginError");
+            $table->integer("errorCountBeforeLastLogin");
         });
     }
 

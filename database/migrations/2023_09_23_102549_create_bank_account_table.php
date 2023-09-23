@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('bank_account', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title', 50);
+            $table->string("description", 300);
+            $table->double("balance");
             $table->unsignedInteger('userAccountID');
 
             $table->foreign('userAccountID')->references('id')->on('user_account');

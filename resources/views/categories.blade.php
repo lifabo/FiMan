@@ -10,7 +10,7 @@
 
 @section('pageDescription')
     Jede Ausgabe ist einer bestimmten Kategorie zugewiesen, die du selbst definieren kannst. Hier kannst du all deine
-    Kategorien verwalten: neue hinzufügen, bestehende bearbeiten oder löschen.
+    Kategorien verwalten: neue hinzufügen und bestehende bearbeiten oder löschen.
 @endsection
 
 @section('content')
@@ -38,7 +38,7 @@
             <tbody>
                 @foreach ($categories as $category)
                     <tr>
-                        <td>{{ $category->title }}</td>
+                        <td class="align-middle">{{ $category->title }}</td>
 
                         <td class="text-center">
                             <a class="btn btn-primary" href="{{ route('category.edit', ['id' => $category->id]) }}">

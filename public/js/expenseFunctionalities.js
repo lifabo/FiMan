@@ -27,10 +27,14 @@ $(document).ready(function () {
     }
     //#endregion
 
-    //#region reload page when click on cancel while adding/editing a category/expense
+    //#region reload page when click on cancel while adding/editing a expense
     document.getElementById("btnDismissChanges").addEventListener("click", function () {
         window.location.reload();
     });
+    //#endregion
+
+    //#region load expenses of bank account when selected bank account changes
+
     //#endregion
 });
 

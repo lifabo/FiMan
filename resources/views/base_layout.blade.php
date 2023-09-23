@@ -26,7 +26,7 @@
             <div class="collapse navbar-collapse ml-auto" id="navbarNav">
                 <ul class="navbar-nav w-100">
                     <li class="nav-item">
-                        <a href="/" class="nav-link" aria-current="page">Startseite</a>
+                        <a href="/" class="nav-link" aria-current="page">Statistiken</a>
                     </li>
 
                     <li class="nav-item">
@@ -34,7 +34,11 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="/expenses" class="nav-link">Ausgabenübersicht</a>
+                        <a href="/expenses" class="nav-link">Ausgaben</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="/bankAccounts" class="nav-link">Konten</a>
                     </li>
 
                     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">

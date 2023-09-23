@@ -32,6 +32,7 @@ Route::post("/verifyCategoryEditing", [WebController::class, "verifyCategoryEdit
 Route::delete("/category/delete/{id}", [WebController::class, "deleteCategory"])->name("category.delete");
 Route::delete("/confirmCategoryDeletion", [WebController::class, "confirmCategoryDeletion"]);
 Route::get("/test/{id}", [WebController::class, "test"])->name("testDelete");
+
 // expense
 Route::get("/expenses", [WebController::class, "showExpenses"]);
 Route::post("/addExpense", [WebController::class, "addExpense"]);
@@ -39,3 +40,6 @@ Route::get("/expense/edit/{id}", [WebController::class, "editExpense"])->name("e
 Route::post("/verifyExpenseEditing", [WebController::class, "verifyExpenseEditing"]);
 Route::delete("/expense/delete/{id}", [WebController::class, "deleteExpense"])->name("expense.delete");
 Route::delete("/confirmExpenseDeletion", [WebController::class, "confirmExpenseDeletion"]);
+
+// bank account
+Route::get("/bankAccounts", [WebController::class, "showBankAccounts"]);

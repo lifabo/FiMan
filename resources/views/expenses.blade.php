@@ -8,12 +8,23 @@
     Ausgabenübersicht
 @endsection
 
+@section('pageDescription')
+    Hier kannst du deine Ausgaben verwalten für jedes Konto verwalten: neue hinzufügen und bestehende bearbeiten oder
+    löschen.
+@endsection
+
 @section('content')
     <script>
         // in case creation oder editing of category fails, modal should stay open and display an error message
         const shouldOpenModal = @json(session('shouldOpenModal'));
         const showAlert = @json(session('showAlert'));
     </script>
+
+    <select class="form-select mb-3" id="selectBankAccount">
+        @foreach ($bankAccounts as $bankAccount)
+            <option value="{{ $bankAccount->id }}">{{ $bankAccount->title }}</option>
+        @endforeach
+    </select>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
         data-bs-target="#expenseModal">Ausgabe erstellen</button>
@@ -24,10 +35,10 @@
         <table class="table table-white table-hover table-bordered">
             <thead>
                 <tr>
-                    <th>Datum</th>
-                    <th>Betrag</th>
-                    <th>Beschreibung</th>
-                    <th>Kategorie</th>
+                    <th class="text-center">Datum</th>
+                    <th class="text-center">Betrag</th>
+                    <th class="text-center">Beschreibung</th>
+                    <th class="text-center">Kategorie</th>
                     <th class="col-1 text-center">Bearbeiten</th>
                     <th class="col-1 text-center">Löschen</th>
                 </tr>
@@ -35,10 +46,14 @@
             <tbody>
                 @foreach ($expenses as $expense)
                     <tr>
-                        <td class="{{ $expense->amount < 0 ? 'bg-danger' : 'bg-success' }}">{{ $expense->timestamp }}</td>
-                        <td class="{{ $expense->amount < 0 ? 'bg-danger' : 'bg-success' }}">{{ $expense->amount }}</td>
-                        <td class="{{ $expense->amount < 0 ? 'bg-danger' : 'bg-success' }}">{{ $expense->description }}</td>
-                        <td class="{{ $expense->amount < 0 ? 'bg-danger' : 'bg-success' }}">{{ $expense->categoryTitle }}
+                        <td class="text-center align-middle {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
+                            {{ $expense->timestamp }}</td>
+                        <td class="text-center align-middle {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
+                            {{ $expense->amount }}</td>
+                        <td class="text-center align-middle {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
+                            {{ $expense->description }}</td>
+                        <td class="text-center align-middle">
+                            {{ $expense->categoryTitle }}
                         </td>
                         <td class="text-center">
                             <a class="btn btn-primary" href="{{ route('expense.edit', ['id' => $expense->id]) }}">

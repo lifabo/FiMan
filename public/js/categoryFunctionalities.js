@@ -47,7 +47,7 @@ $(document).ready(function () {
     }
     //#endregion
 
-    //#region reload page when click on cancel while adding/editing a category/expense
+    //#region reload page when click on cancel while adding/editing a category
 
     document.getElementById("btnDismissChanges").addEventListener("click", function () {
         window.location.reload();
