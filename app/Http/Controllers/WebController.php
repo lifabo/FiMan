@@ -310,7 +310,7 @@ class WebController extends Controller
             Expense::create([
                 "timestamp" => $request->input("timestamp"),
                 "amount" => $request->input("amount"),
-                "description" => $request->input("description"),
+                "description" => $request->input("description") == "" ? "" : $request->input("description"),
                 "categoryID" => $request->input("category"),
                 "bankAccountID" => "1"
             ]);
@@ -350,7 +350,7 @@ class WebController extends Controller
         Expense::where("id", session("currentExpenseEditingID"))->first()->update([
             "timestamp" => $request->input("timestamp"),
             "amount" => $request->input("amount"),
-            "description" => $request->input("description"),
+            "description" => $request->input("description") == "" ? "" : $request->input("description"),
             "categoryID" => $request->input("category"),
             "bankAccountID" => "1"
         ]);

@@ -113,7 +113,7 @@
                             <label for="txtDescription" class="py-2">Beschreibung</label>
                             <textarea name="description"
                                 placeholder="{{ session('shouldOpenModal') == 'edit' ? session('description') : 'z.B. schöne neue Hose' }}"
-                                class="form-control" id="txtDescription" rows="3" autocomplete="off" required>{{ session('description') }}</textarea>
+                                class="form-control" id="txtDescription" rows="3" autocomplete="off">{{ session('description') }}</textarea>
 
                             <label for="inpCategory" class="py-2">Kategorie</label>
                             <select class="form-select" id="inpCategory" name="category" required>
