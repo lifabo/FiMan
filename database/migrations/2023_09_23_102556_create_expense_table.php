@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('bankAccountID');
 
             $table->foreign('categoryID')->references('id')->on('category')->onDelete("set null");
-            $table->foreign('bankAccountID')->references('id')->on('bank_account');
+            $table->foreign('bankAccountID')->references('id')->on('bank_account')->onDelete("cascade");
         });
     }
 

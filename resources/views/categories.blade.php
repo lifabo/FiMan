@@ -19,12 +19,13 @@
         const shouldOpenModal = @json(session('shouldOpenModal'));
         const confirmDeleteTitle = @json(session('confirmDeleteTitle'));
         const showAlert = @json(session('showAlert'));
+        const successAlert = @json(session('successAlert'));
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
         data-bs-target="#categoryModal">Kategorie erstellen</button>
 
-    <div id="alertDiv" class="alert alert-success d-none" role="alert">{{ session('status') }}</div>
+    <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
     <div class="table-responsive">
         <table class="table table-white table-hover table-bordered">

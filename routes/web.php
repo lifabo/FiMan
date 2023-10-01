@@ -34,7 +34,7 @@ Route::delete("/confirmCategoryDeletion", [WebController::class, "confirmCategor
 Route::get("/test/{id}", [WebController::class, "test"])->name("testDelete");
 
 // expense
-Route::get("/expenses", [WebController::class, "showExpenses"]);
+Route::get("/expenses", [WebController::class, "showExpenses"])->name("expense.show");
 Route::post("/addExpense", [WebController::class, "addExpense"]);
 Route::get("/expense/edit/{id}", [WebController::class, "editExpense"])->name("expense.edit");
 Route::post("/verifyExpenseEditing", [WebController::class, "verifyExpenseEditing"]);
@@ -43,3 +43,8 @@ Route::delete("/confirmExpenseDeletion", [WebController::class, "confirmExpenseD
 
 // bank account
 Route::get("/bankAccounts", [WebController::class, "showBankAccounts"]);
+Route::post("/addBankAccount", [WebController::class, "addBankAccount"]);
+Route::get("/bankAccount/edit/{id}", [WebController::class, "editBankAccount"])->name("bankAccount.edit");
+Route::post("/verifyBankAccountEditing", [WebController::class, "verifyBankAccountEditing"]);
+Route::delete("/bankAccount/delete/{id}", [WebController::class, "deleteBankAccount"])->name("bankAccount.delete");
+Route::delete("/confirmBankAccountDeletion", [WebController::class, "confirmBankAccountDeletion"]);

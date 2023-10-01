@@ -1,6 +1,7 @@
 @extends('base_layout')
 
 @section('head')
+    <script src="{{ asset('js/bankAccountFunctionalities.js') }}" defer></script>
 @endsection
 
 @section('pageHeading')
@@ -16,12 +17,13 @@
         // in case creation oder editing of category fails, modal should stay open and display an error message
         const shouldOpenModal = @json(session('shouldOpenModal'));
         const showAlert = @json(session('showAlert'));
+        const successAlert = @json(session('successAlert'));
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
         data-bs-target="#bankAccountModal">Konto erstellen</button>
 
-    <div id="alertDiv" class="alert alert-success d-none" role="alert">{{ session('status') }}</div>
+    <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
     <div class="table-responsive">
         <table class="table table-white table-hover table-bordered">
@@ -37,12 +39,13 @@
             <tbody>
                 @foreach ($bankAccounts as $bankAccount)
                     <tr>
-                        <td class="text-center">{{ $bankAccount->title }}</td>
-                        <td class="text-center">{{ $bankAccount->description }}</td>
-                        <td class="text-center {{ $bankAccount->balance < 0 ? 'text-danger' : 'text-success' }}">
+                        <td class="text-center align-middle">{{ $bankAccount->title }}</td>
+                        <td class="text-center align-middle">{{ $bankAccount->description }}</td>
+                        <td
+                            class="text-center align-middle {{ $bankAccount->balance < 0 ? 'text-danger' : 'text-success' }}">
                             {{ $bankAccount->balance }}</td>
-                        {{-- <td class="text-center">
-                            <a class="btn btn-primary" href="{{ route('expense.edit', ['id' => $expense->id]) }}">
+                        <td class="text-center">
+                            <a class="btn btn-primary" href="{{ route('bankAccount.edit', ['id' => $bankAccount->id]) }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                     class="bi bi-pen" viewBox="0 0 16 16">
                                     <path
@@ -52,7 +55,7 @@
                         </td>
 
                         <td class="text-center">
-                            <form action="{{ route('expense.delete', ['id' => $expense->id]) }}" method="post">
+                            <form action="{{ route('bankAccount.delete', ['id' => $bankAccount->id]) }}" method="post">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-danger" type="submit">
@@ -65,10 +68,81 @@
                                     </svg>
                                 </button>
                             </form>
-                        </td> --}}
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    <div id="bankAccountModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Konto
+                        {{ session('shouldOpenModal') == 'edit' ? 'bearbeiten' : 'erstellen' }}</h5>
+                </div>
+
+                <form action="{{ session('shouldOpenModal') == 'edit' ? '/verifyBankAccountEditing' : '/addBankAccount' }}"
+                    method="post">
+                    <div class="modal-body">
+                        @csrf
+                        <div class="form-group">
+                            <label for="inpTitle" class="py-2">Name</label>
+                            <input type="text"
+                                placeholder="{{ session('shouldOpenModal') == 'edit' ? session('title') : 'z.B. Postbank' }}"
+                                value="{{ session('title') }}" class="form-control" name="title" id="inpTitle"
+                                autocomplete="off" required>
+
+                            <label for="inpDescription" class="py-2">Beschreibung</label>
+                            <textarea name="description"
+                                placeholder="{{ session('shouldOpenModal') == 'edit' ? session('description') : 'z.B. Mietkonto' }}"
+                                class="form-control" id="inpDescription" rows="3" autocomplete="off">{{ session('description') }}</textarea>
+                            @if (session('shouldOpenModal') == 'edit')
+                                <label for="inpBalance" class="py-2">Kontostand</label>
+                                <input type="number" placeholder="{{ session('balance') }}"
+                                    value="{{ session('balance') }}" class="form-control" id="inpBalance" disabled>
+                            @endif
+                        </div>
+
+                        <p class="text-danger mb-0 mt-3">{{ session('modalStatus') }}</p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="btnDismissChanges" class="btn btn-danger" type="button" data-bs-dismiss="modal">
+                            Verwerfen
+                        </button>
+
+                        <button class="btn btn-primary"
+                            type="submit">{{ session('shouldOpenModal') == 'edit' ? 'Bearbeiten' : 'Erstellen' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="confirmDeleteModal" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Löschen bestätigen</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="font-weight-bold">Du bist dabei ein Konto zu löschen. Bist du dir sicheeeeer?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnDismissDelete" class="btn btn-primary" type="button"
+                        data-bs-dismiss="modal">Abbrechen</button>
+
+                    <form action="/confirmBankAccountDeletion" method="post">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-danger" id="btnConfirmDelete" type="submit">Löschen</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

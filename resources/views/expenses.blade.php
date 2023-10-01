@@ -17,22 +17,28 @@
     <script>
         // in case creation oder editing of category fails, modal should stay open and display an error message
         const shouldOpenModal = @json(session('shouldOpenModal'));
+        const disableControls = @json(session('disableControls'));
         const showAlert = @json(session('showAlert'));
+        const successAlert = @json(session('successAlert'));
+
+        console.log(successAlert);
     </script>
 
-    <select class="form-select mb-3" id="selectBankAccount">
-        @foreach ($bankAccounts as $bankAccount)
-            <option value="{{ $bankAccount->id }}">{{ $bankAccount->title }}</option>
-        @endforeach
-    </select>
+    <form action="/expenses" method="get" id="selectBankAccountForm">
+        <select class="form-select mb-3" id="selectBankAccount" name="bankAccountID">
+            @foreach ($bankAccounts as $bankAccount)
+                <option value="{{ $bankAccount->id }}">{{ $bankAccount->title }}</option>
+            @endforeach
+        </select>
+    </form>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
         data-bs-target="#expenseModal">Ausgabe erstellen</button>
 
-    <div id="alertDiv" class="alert alert-success d-none" role="alert">{{ session('status') }}</div>
+    <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
     <div class="table-responsive">
-        <table class="table table-white table-hover table-bordered">
+        <table class="table table-white table-hover table-bordered" id="tblExpenses">
             <thead>
                 <tr>
                     <th class="text-center">Datum</th>
@@ -46,11 +52,11 @@
             <tbody>
                 @foreach ($expenses as $expense)
                     <tr>
-                        <td class="text-center align-middle {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
+                        <td class="text-center align-middle">
                             {{ $expense->timestamp }}</td>
                         <td class="text-center align-middle {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
                             {{ $expense->amount }}</td>
-                        <td class="text-center align-middle {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
+                        <td class="text-center align-middle">
                             {{ $expense->description }}</td>
                         <td class="text-center align-middle">
                             {{ $expense->categoryTitle }}
@@ -165,7 +171,7 @@
                     <button id="btnDismissDelete" class="btn btn-primary" type="button"
                         data-bs-dismiss="modal">Abbrechen</button>
 
-                    <form action="confirmExpenseDeletion" method="post">
+                    <form action="/confirmExpenseDeletion" method="post">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-danger" id="btnConfirmDelete" type="submit">Löschen</button>

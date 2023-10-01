@@ -19,6 +19,8 @@ $(document).ready(function () {
     //#region show alert box
     const alertDiv = document.getElementById("alertDiv");
 
+    successAlert == "true" ? alertDiv.classList.add("alert-success") : alertDiv.classList.add("alert-danger");
+
     if (showAlert) {
         alertDiv.classList.remove("d-none");
     }
@@ -34,7 +36,19 @@ $(document).ready(function () {
     //#endregion
 
     //#region load expenses of bank account when selected bank account changes
+    const selectBankAccountForm = document.getElementById("selectBankAccountForm");
+    const selectBankAccount = document.getElementById("selectBankAccount");
 
+    selectBankAccount.addEventListener('change', function () {
+        selectBankAccountForm.submit();
+    });
+    //#endregion
+
+    //#region disable controls when user has no bank account
+    if (disableControls == true) {
+        document.getElementById("btnOpenAddModal").classList.add("d-none");
+        document.getElementById("tblExpenses").classList.add("d-none");
+        selectBankAccount.classList.add("d-none");
+    }
     //#endregion
 });
-

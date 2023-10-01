@@ -39,6 +39,8 @@ $(document).ready(function () {
     //#region show alert box
     const alertDiv = document.getElementById("alertDiv");
 
+    successAlert == true ? alertDiv.classList.add("alert-success") : alertDiv.classList.add("alert-danger");
+
     if (showAlert) {
         alertDiv.classList.remove("d-none");
     }

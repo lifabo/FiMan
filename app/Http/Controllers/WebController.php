@@ -162,6 +162,10 @@ class WebController extends Controller
         else {
             // title unqualified (null or whitespaces)
             if ($request->input("title") == "" || trim($request->input("title") == "")) {
+                return redirect("/categories")->with([
+                    "shouldOpenModal" => "add",
+                    "modalStatus" => "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen."
+                ]);
             }
             // category already exists
             else if ($this->checkIfCategoryExists($request->input("title"))) {
@@ -179,6 +183,7 @@ class WebController extends Controller
 
                 session()->flash("status", "Kategorie '" . $request->input('title') . "' erfolgreich erstellt.");
                 session()->flash("showAlert", "true");
+                session()->flash("successAlert", "true");
                 return redirect("/categories");
             }
         }
@@ -217,7 +222,7 @@ class WebController extends Controller
         else if ($request->input("title") == null || trim($request->input("title")) == "") {
             $error = true;
 
-            session()->flash("modalStatus", "Der Name der Kategorie darf nicht leer sein oder nur aus Leerzeichen bestehen.");
+            session()->flash("modalStatus", "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.");
         }
 
 
@@ -239,6 +244,7 @@ class WebController extends Controller
 
             session()->flash("status", "Kategorie erfolgreich umbenannt.");
             session()->flash("showAlert", "true");
+            session()->flash("successAlert", "true");
             return redirect("/categories");
         }
     }
@@ -270,6 +276,7 @@ class WebController extends Controller
         session()->forget("currentCategoryDeletingID");
         session()->flash("status", "Kategorie erfolgreich gelöscht.");
         session()->flash("showAlert", "true");
+        session()->flash("successAlert", "false");
 
         return redirect("/categories");
     }
@@ -280,24 +287,41 @@ class WebController extends Controller
 
 
     #region expense
-    public function showExpenses()
+    public function showExpenses(Request $request)
     {
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
+            // first call of showExpenses, set default bank account id
+            $bankAccountID = $request->input("bankAccountID", BankAccount::where("userAccountID", session("loggedInUserID"))->first());
 
-            $expenses = Expense::join("category", "expense.categoryID", "category.ID")
+            // retrieve expenses from database or set to an empty array when user has no bank accounts
+            $expenses = $bankAccountID != null ? Expense::leftJoin("category", "expense.categoryID", "category.ID")
                 ->select("expense.*", "category.title as categoryTitle")
-                ->get();
+                ->where("expense.bankAccountID", $bankAccountID)
+                ->orderBy("timestamp")
+                ->get() : array();
 
             $categories = Category::where("userAccountID", session("loggedInUserID"))->get();
 
-            $bankAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))->get();
+            // retrieve bank accounts from database or set to an empty array when user has no bank accounts
+            $bankAccounts = $bankAccountID != null ? BankAccount::where("userAccountID", session("loggedInUserID"))
+                ->get() : array();
 
+            // store in session variable if control elements have to be disabled
+            $bankAccountID == null ? session()->flash("disableControls", true)
+                : session()->flash("disableControls", false);
+
+            if ($bankAccountID == null) {
+                session()->now("status", "Du hast noch kein Konto, erstelle erst eins um Ausgaben hinzufügen zu können.");
+                session()->now("showAlert", "true");
+                session()->now("successAlert", "false");
+            }
             return view("expenses", [
                 "expenses" => $expenses,
                 "categories" => $categories,
-                "bankAccounts" => $bankAccounts
+                "bankAccounts" => $bankAccounts,
+                "selectedBankAccountID" => $bankAccountID
             ]);
         }
     }
@@ -317,6 +341,7 @@ class WebController extends Controller
 
             session()->flash("status", "Ausgabe erfolgreich erstellt.");
             session()->flash("showAlert", "true");
+            session()->flash("successAlert", "true");
             return redirect("/expenses");
         }
     }
@@ -339,7 +364,7 @@ class WebController extends Controller
                 "timestamp" => $dbExpenseData->timestamp,
                 "amount" => $dbExpenseData->amount,
                 "description" => $dbExpenseData->description,
-                "categoryID" => $dbCategoryOfExpense->id
+                "categoryID" => $dbCategoryOfExpense != null ? $dbCategoryOfExpense->id : null
             ]);
         }
     }
@@ -359,6 +384,7 @@ class WebController extends Controller
 
         session()->flash("status", "Ausgabe erfolgreich bearbeitet.");
         session()->flash("showAlert", "true");
+        session()->flash("successAlert", "true");
         return redirect("/expenses");
     }
 
@@ -386,6 +412,7 @@ class WebController extends Controller
         session()->forget("currentExpenseDeletingID");
         session()->flash("status", "Ausgabe erfolgreich gelöscht.");
         session()->flash("showAlert", "true");
+        session()->flash("successAlert", "false");
         return redirect("/expenses");
     }
     #endregion
@@ -404,6 +431,120 @@ class WebController extends Controller
                 "bankAccounts" => $bankAccounts
             ]);
         }
+    }
+
+    public function addBankAccount(Request $request)
+    {
+        if (!session()->has('loggedInUsername'))
+            return redirect("/login");
+        else {
+            // title unqualified (null or whitespaces)
+            if ($request->input("title") == "" || trim($request->input("title") == "")) {
+                return redirect("/bankAccounts")->with([
+                    "shouldOpenModal" => "add",
+                    "description" => $request->input("description"),
+                    "modalStatus" => "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen."
+                ]);
+            } else {
+
+                BankAccount::create([
+                    "title" => $request->input("title"),
+                    "description" => $request->input("description") == "" ? "" : $request->input("description"),
+                    "balance" => "0",
+                    "userAccountID" => session("loggedInUserID")
+                ]);
+
+                session()->flash("status", "Konto erfolgreich erstellt.");
+                session()->flash("showAlert", "true");
+                session()->flash("successAlert", "true");
+                return redirect("/bankAccounts");
+            }
+        }
+    }
+
+
+    public function editBankAccount($id)
+    {
+        $dbBankAccountData = BankAccount::where("id", $id)->first();
+
+        // bank account with $id does not exist
+        if ($dbBankAccountData == null)
+            return redirect("/bankAccounts");
+        else {
+            session()->put("currentBankAccountEditingID", $id);
+
+            $shouldOpenModal = "edit";
+            return redirect("/bankAccounts")->with([
+                "shouldOpenModal" => $shouldOpenModal,
+                "title" => $dbBankAccountData->title,
+                "description" => $dbBankAccountData->description,
+                "balance" => $dbBankAccountData->balance
+            ]);
+        }
+    }
+
+    public function verifyBankAccountEditing(Request $request)
+    {
+        $error = false;
+
+        // error handling
+        //  null or only whitespaces
+        if ($request->input("title") == null || trim($request->input("title")) == "") {
+            $error = true;
+
+            session()->flash("modalStatus", "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.");
+        }
+
+        //  error has occured
+        if ($error) {
+            $shouldOpenModal = "edit";
+            return redirect("/bankAccounts")->with([
+                "shouldOpenModal" => $shouldOpenModal,
+                "description" => $request->input("description")
+            ]);
+        } else {
+
+            // update expense
+            BankAccount::where("id", session("currentBankAccountEditingID"))->first()->update([
+                "title" => $request->input("title"),
+                "description" => $request->input("description") == "" ? "" : $request->input("description")
+            ]);
+
+            session()->forget("currentBankAccountEditingID");
+
+            session()->flash("status", "Konto erfolgreich bearbeitet.");
+            session()->flash("showAlert", "true");
+            session()->flash("successAlert", "true");
+            return redirect("/bankAccounts");
+        }
+    }
+
+    public function deleteBankAccount($id)
+    {
+        $dbBankAccountData = BankAccount::where("id", $id)->first();
+
+        // bank account with $id does not exist
+        if ($dbBankAccountData == null)
+            return redirect("/bankAccounts");
+        else {
+            session()->put("currentBankAccountDeletingID", $id);
+            $shouldOpenModal = "confirmDelete";
+
+            return redirect("/bankAccounts")->with([
+                "shouldOpenModal" => $shouldOpenModal,
+            ]);
+        }
+    }
+
+    public function confirmBankAccountDeletion()
+    {
+        BankAccount::where("id", session("currentBankAccountDeletingID"))->first()->delete();
+
+        session()->forget("currentBankAccountDeletingID");
+        session()->flash("status", "Konto erfolgreich gelöscht.");
+        session()->flash("showAlert", "true");
+        session()->flash("successAlert", "false");
+        return redirect("/bankAccounts");
     }
     #endregion
 }
