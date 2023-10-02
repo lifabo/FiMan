@@ -30,11 +30,11 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="/categories" class="nav-link">Kategorien</a>
+                        <a href="/expenses" class="nav-link">Ausgaben</a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="/expenses" class="nav-link">Ausgaben</a>
+                        <a href="/categories" class="nav-link">Kategorien</a>
                     </li>
 
                     <li class="nav-item">

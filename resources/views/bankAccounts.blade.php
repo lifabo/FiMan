@@ -9,7 +9,9 @@
 @endsection
 
 @section('pageDescription')
-    Hier kannst du Konten verwalten, damit du diesen dann Ausgaben hinzufügen kannst.
+    Hier kannst du Konten verwalten, damit du diesen dann Ausgaben hinzufügen kannst. <br>
+    Ein Konto ist einfach ein Zusammenschluss von Ausgaben, es muss kein real existierendes Bankkonto von dir sein, sondern
+    du kannst bspw. auch ein Konto "Bargeld" erstellen und darin alle Bargeld-Ausgaben eintragen.
 @endsection
 
 @section('content')
@@ -23,7 +25,7 @@
         console.log("hall");
     </script>
 
-    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
+    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4 col-12" data-bs-toggle="modal"
         data-bs-target="#bankAccountModal">Konto erstellen</button>
 
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>

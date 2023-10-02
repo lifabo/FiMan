@@ -22,7 +22,7 @@
         const successAlert = @json(session('successAlert'));
     </script>
 
-    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
+    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4 col-12" data-bs-toggle="modal"
         data-bs-target="#categoryModal">Kategorie erstellen</button>
 
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>

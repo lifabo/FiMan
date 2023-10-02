@@ -49,6 +49,9 @@ $(document).ready(function () {
         document.getElementById("btnOpenAddModal").classList.add("d-none");
         document.getElementById("tblExpenses").classList.add("d-none");
         selectBankAccount.classList.add("d-none");
+        document.getElementById("lblBankAccountBalance").classList.add("d-none");
+        document.getElementById("lblSelectBankAccount").classList.add("d-none");
+        document.getElementById("txtBalance").classList.add("d-none");
     }
     //#endregion
 });

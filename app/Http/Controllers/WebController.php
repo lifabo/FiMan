@@ -25,7 +25,7 @@ class WebController extends Controller
     #region login
     public function testAccountPW()
     {
-        dd(Hash::make("admin"));
+        dd(Hash::make(""));
     }
     public function showRegister()
     {
@@ -181,7 +181,7 @@ class WebController extends Controller
                     "userAccountID" => session("loggedInUserID")
                 ]);
 
-                session()->flash("status", "Kategorie '" . $request->input('title') . "' erfolgreich erstellt.");
+                session()->flash("status", "Kategorie erfolgreich erstellt.");
                 session()->flash("showAlert", "true");
                 session()->flash("successAlert", "true");
                 return redirect("/categories");
