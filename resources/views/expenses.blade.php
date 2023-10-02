@@ -5,7 +5,7 @@
 @endsection
 
 @section('pageHeading')
-    Ausgabenübersicht
+    Ausgaben
 @endsection
 
 @section('pageDescription')
@@ -20,19 +20,25 @@
         const disableControls = @json(session('disableControls'));
         const showAlert = @json(session('showAlert'));
         const successAlert = @json(session('successAlert'));
-
-        console.log(successAlert);
     </script>
 
-    <form action="/expenses" method="get" id="selectBankAccountForm">
+    <label for="selectBankAccountForm" class="fw-bold mb-2">Konto auswählen:</label>
+    <form action="/expenses" method="post" id="selectBankAccountForm">
+        @csrf
         <select class="form-select mb-3" id="selectBankAccount" name="bankAccountID">
             @foreach ($bankAccounts as $bankAccount)
-                <option value="{{ $bankAccount->id }}">{{ $bankAccount->title }}</option>
+                <option value="{{ $bankAccount->id }}"
+                    {{ session()->get('currentSelectedBankAccountID') == $bankAccount->id ? 'selected' : '' }}>
+                    {{ $bankAccount->title }}</option>
             @endforeach
         </select>
     </form>
 
-    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
+    <label for="txtBalance" class="fw-bold mb-4">Aktueller Kontostand: </label>
+    <span id="txtBalance" class="fw-bolder {{ $balance < 0 ? 'text-danger' : 'text-success' }}">
+        {{ number_format($balance, 2, ',', '.') }} €</span>
+
+    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4 d-block" data-bs-toggle="modal"
         data-bs-target="#expenseModal">Ausgabe erstellen</button>
 
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
@@ -53,9 +59,12 @@
                 @foreach ($expenses as $expense)
                     <tr>
                         <td class="text-center align-middle">
-                            {{ $expense->timestamp }}</td>
-                        <td class="text-center align-middle {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
-                            {{ $expense->amount }}</td>
+                            {{ date('d.m.Y', strtotime($expense->timestamp)) }}
+                        </td>
+                        <td
+                            class="text-center align-middle fw-bolder {{ $expense->amount < 0 ? 'text-danger' : 'text-success' }}">
+                            {{ number_format($expense->amount, 2, ',', '.') }} €
+                        </td>
                         <td class="text-center align-middle">
                             {{ $expense->description }}</td>
                         <td class="text-center align-middle">
@@ -113,8 +122,8 @@
                             <label for="inpAmount" class="py-2">Betrag</label>
                             <input type="number"
                                 placeholder="{{ session('shouldOpenModal') == 'edit' ? session('amount') : 'z.B. 9,99€' }}"
-                                value="{{ session('amount') }}" class="form-control" name="amount" id="inpAmount"
-                                autocomplete="off" required>
+                                value="{{ session('amount') }}" step="0.01" class="form-control" name="amount"
+                                id="inpAmount" autocomplete="off" required>
 
                             <label for="txtDescription" class="py-2">Beschreibung</label>
                             <textarea name="description"
@@ -122,22 +131,17 @@
                                 class="form-control" id="txtDescription" rows="3" autocomplete="off">{{ session('description') }}</textarea>
 
                             <label for="inpCategory" class="py-2">Kategorie</label>
-                            <select class="form-select" id="inpCategory" name="category" required>
+                            <select class="form-select" id="inpCategory" name="category">
+                                <option value="">Bitte auswählen</option>
                                 @foreach ($categories as $category)
                                     <option value={{ $category->id }}
                                         {{ session('categoryID') == $category->id ? 'selected' : '' }}>
                                         {{ $category->title }}</option>
                                 @endforeach
                             </select>
-
-                            {{-- <label for="txtTitle" class="py-2">asdkjhsad</label>
-                            <input id="txtTitle" type="text" class="form-control" name="title"
-                                placeholder="{{ session('shouldOpenModal') == 'edit' ? session('title') : 'z.B. Urlaub' }}"
-                                autocomplete="off" required value="{{ session('title') }}"> --}}
-
-                            {{-- <small class="form-text text-muted" id="titleUniqueInfo">Beachte, dass du nicht zwei
-                                Kategorien mit dem
-                                selben Namen erstellen kannst.</small> --}}
+                            <small class="form-text text-muted">Wenn die Kategorie leer bleiben soll, kannst du die
+                                Standardoption "Bitte auswählen"
+                                auswählen.</small>
                         </div>
 
                         <p class="text-danger mb-0 mt-3">{{ session('modalStatus') }}</p>
@@ -165,7 +169,7 @@
                     <h5 class="modal-title">Löschen bestätigen</h5>
                 </div>
                 <div class="modal-body">
-                    <p class="font-weight-bold">Du bist dabei eine Ausgabe zu löschen. Bist du dir sicheeeeer?</p>
+                    <p>Du bist dabei eine Ausgabe zu löschen. Bist du dir sicheeeeer?</p>
                 </div>
                 <div class="modal-footer">
                     <button id="btnDismissDelete" class="btn btn-primary" type="button"

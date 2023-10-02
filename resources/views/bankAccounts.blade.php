@@ -9,7 +9,7 @@
 @endsection
 
 @section('pageDescription')
-    Hier kannst du Konten verwalten.
+    Hier kannst du Konten verwalten, damit du diesen dann Ausgaben hinzufügen kannst.
 @endsection
 
 @section('content')
@@ -18,6 +18,9 @@
         const shouldOpenModal = @json(session('shouldOpenModal'));
         const showAlert = @json(session('showAlert'));
         const successAlert = @json(session('successAlert'));
+
+        console.log(successAlert);
+        console.log("hall");
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
@@ -42,8 +45,8 @@
                         <td class="text-center align-middle">{{ $bankAccount->title }}</td>
                         <td class="text-center align-middle">{{ $bankAccount->description }}</td>
                         <td
-                            class="text-center align-middle {{ $bankAccount->balance < 0 ? 'text-danger' : 'text-success' }}">
-                            {{ $bankAccount->balance }}</td>
+                            class="text-center align-middle fw-bolder {{ $bankAccount->balance < 0 ? 'text-danger' : 'text-success' }}">
+                            {{ number_format($bankAccount->balance, 2, ',', '.') }} €</td>
                         <td class="text-center">
                             <a class="btn btn-primary" href="{{ route('bankAccount.edit', ['id' => $bankAccount->id]) }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -130,7 +133,17 @@
                     <h5 class="modal-title">Löschen bestätigen</h5>
                 </div>
                 <div class="modal-body">
-                    <p class="font-weight-bold">Du bist dabei ein Konto zu löschen. Bist du dir sicheeeeer?</p>
+                    @if (session('usageCount') > 0)
+                        <p class="text-danger">Das Konto wird noch in
+                            {{ session('usageCount') }} Ausgaben verwendet.</p>
+
+                        <p>Wenn du das Konto jetzt löschst, werden alle Ausgaben unwiderruflich mit gelöscht.</p>
+                    @else
+                        <p class="text-success">Das Konto wird aktuell in keiner Ausgabe verwendet, du kannst es
+                            also ohne Probleme löschen.</p>
+                    @endif
+
+                    <p>Bist du dir sicheeeeer?</p>
                 </div>
                 <div class="modal-footer">
                     <button id="btnDismissDelete" class="btn btn-primary" type="button"

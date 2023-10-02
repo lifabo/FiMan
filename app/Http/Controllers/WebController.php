@@ -13,12 +13,12 @@ use Illuminate\Validation\Rules\Password;
 
 class WebController extends Controller
 {
-    public function showHomepage()
+    public function showStatistics()
     {
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
-            return view("homepage");
+            return view("statistics");
         }
     }
 
@@ -292,8 +292,26 @@ class WebController extends Controller
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
-            // first call of showExpenses, set default bank account id
-            $bankAccountID = $request->input("bankAccountID", BankAccount::where("userAccountID", session("loggedInUserID"))->first());
+            $bankAccountID = null;
+
+            // user has manually selected a bank account, so the selected one should be loaded
+            if ($request->filled("bankAccountID")) {
+                $bankAccountID = $request->input("bankAccountID");
+            }
+            // first load of site, user has not manually selected and there is no session variable for bank account id yet, so use default first bank account id of the user
+            else if (!$request->filled("bankAccountID") && !session()->has("currentSelectedBankAccountID")) {
+
+                // first() can return null, so you have to catch that case
+                $bankAccountID = BankAccount::where("userAccountID", session("loggedInUserID"))->first();
+
+                $bankAccountID = $bankAccountID->id ?? null;
+            }
+            // expense was added, edited or deleted, there already is a session variable for bank account id, so use session variable
+            else {
+                $bankAccountID = session()->get("currentSelectedBankAccountID");
+            }
+
+            session()->put("currentSelectedBankAccountID", $bankAccountID);
 
             // retrieve expenses from database or set to an empty array when user has no bank accounts
             $expenses = $bankAccountID != null ? Expense::leftJoin("category", "expense.categoryID", "category.ID")
@@ -317,11 +335,17 @@ class WebController extends Controller
                 session()->now("showAlert", "true");
                 session()->now("successAlert", "false");
             }
+
+            $balance = 0;
+            if ($bankAccountID != null)
+                $balance = BankAccount::where("id", $bankAccountID)->first()->balance;
+
             return view("expenses", [
                 "expenses" => $expenses,
                 "categories" => $categories,
                 "bankAccounts" => $bankAccounts,
-                "selectedBankAccountID" => $bankAccountID
+                "selectedBankAccountID" => $bankAccountID,
+                "balance" => $balance
             ]);
         }
     }
@@ -336,8 +360,10 @@ class WebController extends Controller
                 "amount" => $request->input("amount"),
                 "description" => $request->input("description") == "" ? "" : $request->input("description"),
                 "categoryID" => $request->input("category"),
-                "bankAccountID" => "1"
+                "bankAccountID" => session()->get("currentSelectedBankAccountID")
             ]);
+
+            $this->updateBankAccountBalance(session()->get("currentSelectedBankAccountID"));
 
             session()->flash("status", "Ausgabe erfolgreich erstellt.");
             session()->flash("showAlert", "true");
@@ -376,9 +402,10 @@ class WebController extends Controller
             "timestamp" => $request->input("timestamp"),
             "amount" => $request->input("amount"),
             "description" => $request->input("description") == "" ? "" : $request->input("description"),
-            "categoryID" => $request->input("category"),
-            "bankAccountID" => "1"
+            "categoryID" => $request->input("category")
         ]);
+
+        $this->updateBankAccountBalance(session()->get("currentSelectedBankAccountID"));
 
         session()->forget("currentExpenseEditingID");
 
@@ -409,11 +436,23 @@ class WebController extends Controller
     {
         Expense::where("id", session("currentExpenseDeletingID"))->first()->delete();
 
+
+        $this->updateBankAccountBalance(session()->get("currentSelectedBankAccountID"));
+
         session()->forget("currentExpenseDeletingID");
         session()->flash("status", "Ausgabe erfolgreich gelöscht.");
         session()->flash("showAlert", "true");
         session()->flash("successAlert", "false");
         return redirect("/expenses");
+    }
+
+    public function updateBankAccountBalance($id)
+    {
+        $balance = Expense::where("bankAccountID", $id)->sum("amount");
+
+        BankAccount::where("id", $id)->first()->update([
+            "balance" => $balance
+        ]);
     }
     #endregion
 
@@ -472,13 +511,13 @@ class WebController extends Controller
             return redirect("/bankAccounts");
         else {
             session()->put("currentBankAccountEditingID", $id);
+            session()->put("balance", $dbBankAccountData->balance);
 
             $shouldOpenModal = "edit";
             return redirect("/bankAccounts")->with([
                 "shouldOpenModal" => $shouldOpenModal,
                 "title" => $dbBankAccountData->title,
                 "description" => $dbBankAccountData->description,
-                "balance" => $dbBankAccountData->balance
             ]);
         }
     }
@@ -527,11 +566,13 @@ class WebController extends Controller
         if ($dbBankAccountData == null)
             return redirect("/bankAccounts");
         else {
+            $dbBankAccountUsageCount = Expense::where("bankAccountID", $id)->count();
             session()->put("currentBankAccountDeletingID", $id);
             $shouldOpenModal = "confirmDelete";
 
             return redirect("/bankAccounts")->with([
                 "shouldOpenModal" => $shouldOpenModal,
+                "usageCount" => $dbBankAccountUsageCount
             ]);
         }
     }
@@ -539,6 +580,9 @@ class WebController extends Controller
     public function confirmBankAccountDeletion()
     {
         BankAccount::where("id", session("currentBankAccountDeletingID"))->first()->delete();
+
+        if (session("currentSelectedBankAccountID") == session("currentBankAccountDeletingID"))
+            session()->forget("currentSelectedBankAccountID");
 
         session()->forget("currentBankAccountDeletingID");
         session()->flash("status", "Konto erfolgreich gelöscht.");

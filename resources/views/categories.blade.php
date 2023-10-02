@@ -121,8 +121,13 @@
                     <h5 class="modal-title">Löschen bestätigen</h5>
                 </div>
                 <div class="modal-body">
-                    <p class="text-danger mb-0">Die Kategorie wird noch in
-                        {{ session('usageCount') }} Ausgaben verwendet.</p>
+                    @if (session('usageCount') > 0)
+                        <p class="text-danger mb-0">Die Kategorie wird noch in
+                            {{ session('usageCount') }} Ausgaben verwendet. Die Ausgaben werden NICHT mitgelöscht.</p>
+                    @else
+                        <p class="text-success mb-0">Die Kategorie wird aktuell in keiner Ausgabe verwendet, du kannst sie
+                            also ohne Probleme löschen.</p>
+                    @endif
 
                     <label for="txtTitleDelete" class="py-2">Bist du dir sicheeeeer?</label>
 

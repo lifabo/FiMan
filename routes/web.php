@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // views
-Route::get('/', [WebController::class, "showHomepage"]);
+Route::get('/', [WebController::class, "showStatistics"]);
 
 // login/register
 Route::get('/login', [WebController::class, "showLogin"]);
@@ -34,7 +34,7 @@ Route::delete("/confirmCategoryDeletion", [WebController::class, "confirmCategor
 Route::get("/test/{id}", [WebController::class, "test"])->name("testDelete");
 
 // expense
-Route::get("/expenses", [WebController::class, "showExpenses"])->name("expense.show");
+Route::match(['get', 'post'], '/expenses', [WebController::class, 'showExpenses'])->name('expense.show');
 Route::post("/addExpense", [WebController::class, "addExpense"]);
 Route::get("/expense/edit/{id}", [WebController::class, "editExpense"])->name("expense.edit");
 Route::post("/verifyExpenseEditing", [WebController::class, "verifyExpenseEditing"]);
