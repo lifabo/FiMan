@@ -317,7 +317,7 @@ class WebController extends Controller
             $expenses = $bankAccountID != null ? Expense::leftJoin("category", "expense.categoryID", "category.ID")
                 ->select("expense.*", "category.title as categoryTitle")
                 ->where("expense.bankAccountID", $bankAccountID)
-                ->orderBy("timestamp")
+                ->orderByDesc("timestamp")
                 ->get() : array();
 
             $categories = Category::where("userAccountID", session("loggedInUserID"))->get();
@@ -331,7 +331,7 @@ class WebController extends Controller
                 : session()->flash("disableControls", false);
 
             if ($bankAccountID == null) {
-                session()->now("status", "Du hast noch kein Konto, erstelle erst eins um Ausgaben hinzufügen zu können.");
+                session()->now("status", "Du hast noch kein Konto zu dem du Ausgaben hinzufügen kannst. Wechsle zur Seite \"Konten\" in der Menüleiste, um ein Konto zu erstellen.");
                 session()->now("showAlert", "true");
                 session()->now("successAlert", "false");
             }
@@ -466,8 +466,12 @@ class WebController extends Controller
 
             $bankAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))->get();
 
+            $balanceAllAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))
+                ->sum("balance");
+
             return view("bankAccounts", [
-                "bankAccounts" => $bankAccounts
+                "bankAccounts" => $bankAccounts,
+                "balanceAllAccounts" => $balanceAllAccounts
             ]);
         }
     }

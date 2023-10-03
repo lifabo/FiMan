@@ -25,12 +25,20 @@
         console.log("hall");
     </script>
 
-    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4 col-12" data-bs-toggle="modal"
+    <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
         data-bs-target="#bankAccountModal">Konto erstellen</button>
+
+    <div class="text-center">
+        <p id="txtBalance" class="fw-bolder display-3 mb-0 {{ $balanceAllAccounts < 0 ? 'text-danger' : 'text-success' }}">
+            {{ number_format($balanceAllAccounts, 2, ',', '.') }} €</p>
+        <small id="lblBankAccountBalance" for="txtBalance" class="fw-bold form-text text-muted">Kontostand von allen Konten
+            zusammen
+        </small>
+    </div>
 
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
-    <div class="table-responsive">
+    <div class="table-responsive mt-4">
         <table class="table table-white table-hover table-bordered">
             <thead>
                 <tr>
@@ -107,6 +115,9 @@
                                 <label for="inpBalance" class="py-2">Kontostand</label>
                                 <input type="number" placeholder="{{ session('balance') }}"
                                     value="{{ session('balance') }}" class="form-control" id="inpBalance" disabled>
+
+                                <small for="inpBalance" class="form-text text-muted">Der Kontostand wird automatisch
+                                    durch das Verwalten der Ausgaben aktualisiert.</small>
                             @endif
                         </div>
 
