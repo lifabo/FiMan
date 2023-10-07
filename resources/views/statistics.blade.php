@@ -11,7 +11,19 @@
 @endsection
 
 @section('content')
-    <div>
-        <canvas id="expensesAmountPerCategoryCurrentMonth"></canvas>
+    <script>
+        const expensesAmountPerCategoryCurrentMonth = @json(session('expensesAmountPerCategoryCurrentMonth'));
+        const expensesAmountPerCategoryPerMonthLast12Months = @json(session('expensesAmountPerCategoryPerMonthLast12Months'));
+    </script>
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <canvas id="CanvasExpensesAmountPerCategoryCurrentMonth"></canvas>
+            </div>
+            <div class="col">
+                <canvas id="CanvasExpensesAmountPerCategoryCurrentMonth2"></canvas>
+            </div>
+        </div>
     </div>
 @endsection

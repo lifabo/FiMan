@@ -37,7 +37,7 @@
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-5 d-block" data-bs-toggle="modal"
         data-bs-target="#expenseModal">Ausgabe erstellen</button>
 
-    <div class="text-center">
+    <div class="text-center mb-2">
         <p id="txtBalance" class="fw-bolder display-3 mb-0 {{ $balance < 0 ? 'text-danger' : 'text-success' }}">
             {{ number_format($balance, 2, ',', '.') }} €</p>
         <small id="lblBankAccountBalance" for="txtBalance" class="fw-bold form-text text-muted">Aktueller Kontostand

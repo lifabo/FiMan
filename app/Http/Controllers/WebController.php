@@ -18,6 +18,27 @@ class WebController extends Controller
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
+            $expensesAmountPerCategoryCurrentMonth = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+                ->leftJoin("category", "expense.categoryID", "category.id")
+                ->where("bank_account.userAccountID", session("loggedInUserID"))
+                ->whereMonth("timestamp", now()->month)
+                ->groupBy("category.title")
+                ->selectRaw("category.title as categoryTitle, SUM(amount) as totalAmount")
+                ->get();
+
+
+            $expensesAmountPerCategoryPerMonthLast12Months = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+                ->leftJoin("category", "expense.categoryID", "category.id")
+                ->where("bank_account.userAccountID", session("loggedInUserID"))
+                ->whereRaw("expense.timestamp >= DATE_SUB(NOW(), INTERVAL 12 MONTH)")
+                ->selectRaw("category.title as categoryTitle, SUM(amount) as totalAmount, MONTHNAME(expense.timestamp) as month")
+                ->groupBy(DB::raw('MONTHNAME(expense.timestamp)'))
+                ->groupBy("category.title")
+                ->get();
+
+            session()->put("expensesAmountPerCategoryCurrentMonth", $expensesAmountPerCategoryCurrentMonth);
+            session()->put("expensesAmountPerCategoryPerMonthLast12Months", $expensesAmountPerCategoryPerMonthLast12Months);
+
             return view("statistics");
         }
     }
