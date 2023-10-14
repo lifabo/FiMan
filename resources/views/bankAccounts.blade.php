@@ -112,11 +112,11 @@
                                 placeholder="{{ session('shouldOpenModal') == 'edit' ? session('description') : 'z.B. Mietkonto' }}"
                                 class="form-control" id="inpDescription" rows="3" autocomplete="off">{{ session('description') }}</textarea>
                             @if (session('shouldOpenModal') == 'edit')
-                                <label for="inpBalance" class="py-2">Kontostand</label>
+                                <label for="txtBalance" class="py-2">Kontostand</label>
                                 <input type="number" placeholder="{{ session('balance') }}"
-                                    value="{{ session('balance') }}" class="form-control" id="inpBalance" disabled>
+                                    value="{{ session('balance') }}" class="form-control" id="txtBalance" disabled>
 
-                                <small for="inpBalance" class="form-text text-muted">Der Kontostand wird automatisch
+                                <small for="txtBalance" class="form-text text-muted">Der Kontostand wird automatisch
                                     durch das Verwalten der Ausgaben aktualisiert.</small>
                             @endif
                         </div>
@@ -139,7 +139,7 @@
     </div>
 
 
-    <div class="modal fade" id="confirmDeleteModal" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div id="confirmDeleteModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">

@@ -20,6 +20,8 @@
         const confirmDeleteTitle = @json(session('confirmDeleteTitle'));
         const showAlert = @json(session('showAlert'));
         const successAlert = @json(session('successAlert'));
+
+        console.log(shouldOpenModal);
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
@@ -85,8 +87,8 @@
                     <div class="modal-body">
                         @csrf
                         <div class="form-group">
-                            <label for="txtTitle" class="py-2">Name der Kategorie</label>
-                            <input id="txtTitle" type="text" class="form-control" aria-describedby="titleUniqueInfo"
+                            <label for="inpTitle" class="py-2">Name der Kategorie</label>
+                            <input id="inpTitle" type="text" class="form-control" aria-describedby="titleUniqueInfo"
                                 name="title"
                                 placeholder="{{ session('shouldOpenModal') == 'edit' ? session('title') : 'z.B. Urlaub' }}"
                                 autocomplete="off" required value="{{ session('title') }}">
@@ -114,7 +116,7 @@
     </div>
 
 
-    <div class="modal fade" id="confirmDeleteModal" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div id="confirmDeleteModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -129,9 +131,9 @@
                             also ohne Probleme löschen.</p>
                     @endif
 
-                    <label for="txtTitleDelete" class="py-2">Bist du dir sicheeeeer?</label>
+                    <label for="inpTitleDelete" class="py-2">Bist du dir sicheeeeer?</label>
 
-                    <input id="txtTitleDelete" type="text" class="form-control" aria-describedby="titleUniqueInfo"
+                    <input id="inpTitleDelete" type="text" class="form-control" aria-describedby="titleUniqueInfo"
                         placeholder="{{ session('confirmDeleteTitle') }}" autocomplete="off" required>
 
                     <small class="form-text text-muted" id="titleUniqueInfo">Zum löschen tippe bitte

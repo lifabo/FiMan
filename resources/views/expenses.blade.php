@@ -128,10 +128,10 @@
                                 value="{{ session('amount') }}" step="0.01" class="form-control" name="amount"
                                 id="inpAmount" autocomplete="off" required>
 
-                            <label for="txtDescription" class="py-2">Beschreibung</label>
+                            <label for="inpDescription" class="py-2">Beschreibung</label>
                             <textarea name="description"
                                 placeholder="{{ session('shouldOpenModal') == 'edit' ? session('description') : 'z.B. schöne neue Hose' }}"
-                                class="form-control" id="txtDescription" rows="3" autocomplete="off">{{ session('description') }}</textarea>
+                                class="form-control" id="inpDescription" rows="3" autocomplete="off">{{ session('description') }}</textarea>
 
                             <label for="inpCategory" class="py-2">Kategorie</label>
                             <select class="form-select" id="inpCategory" name="category">

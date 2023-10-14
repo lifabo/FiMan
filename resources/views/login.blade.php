@@ -22,13 +22,13 @@
                 <h3 class="fw-normal mb-3 text-white" style="letter-spacing: 1px;">FiMan</h3>
 
                 <div class="mb-4">
-                    <input type="text" id="txtUsername" placeholder="Benutzername" name="username" autofocus
+                    <input type="text" id="inpUsername" placeholder="Benutzername" name="username" autofocus
                         autocomplete="off" required value="{{ session('username') }}"
                         class="form-control form-control-lg">
                 </div>
 
-                <div class="mb-4">
-                    <input type="password" id="txtPassword" placeholder="Passwort" name="password" required
+                <div class=" mb-4">
+                    <input type="password" id="inpPassword" placeholder="Passwort" name="password" required
                         value="{{ session('password') }}" class="form-control form-control-lg">
                 </div>
 
@@ -41,10 +41,6 @@
                     </p>
                 @endif
             </form>
-            {{-- <div class="col-sm-7 px-0 d-none d-sm-block">
-                    <img src="/img/IMG_4836.JPG" alt="Login image" class="w-100 vh-100"
-                        style="object-fit: cover; object-position: left;">
-                </div> --}}
         </div>
     </section>
 </body>

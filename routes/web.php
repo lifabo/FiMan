@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\WebController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,37 +19,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// views
-Route::get('/', [WebController::class, "showStatistics"]);
+// homepage
+Route::get('/', StatisticController::class);
 
-// login/register
-Route::get('/login', [WebController::class, "showLogin"]);
-Route::get("/register", [WebController::class, "showRegister"]);
-Route::post("/verifyAccountCreation", [WebController::class, "verifyAccountCreation"]);
-Route::post('/loginVerification', [WebController::class, "verifyLogin"]);
-Route::get("/logout", [WebController::class, "logout"]);
+// login
+Route::get('/login', [LoginController::class, "showLogin"]);
+Route::post('/loginVerification', [LoginController::class, "verifyLogin"]);
+Route::get("/logout", [LoginController::class, "logout"]);
 
 // category
-Route::get('/categories', [WebController::class, "showCategories"]);
-Route::post("/addCategory", [WebController::class, "addCategory"]);
-Route::get("/category/edit/{id}", [WebController::class, "editCategory"])->name("category.edit");
-Route::post("/verifyCategoryEditing", [WebController::class, "verifyCategoryEditing"]);
-Route::delete("/category/delete/{id}", [WebController::class, "deleteCategory"])->name("category.delete");
-Route::delete("/confirmCategoryDeletion", [WebController::class, "confirmCategoryDeletion"]);
-Route::get("/test/{id}", [WebController::class, "test"])->name("testDelete");
+Route::get('/categories', [CategoryController::class, "showCategories"]);
+Route::post("/addCategory", [CategoryController::class, "addCategory"]);
+Route::get("/category/edit/{id}", [CategoryController::class, "editCategory"])->name("category.edit");
+Route::post("/verifyCategoryEditing", [CategoryController::class, "verifyCategoryEditing"]);
+Route::delete("/category/delete/{id}", [CategoryController::class, "deleteCategory"])->name("category.delete");
+Route::delete("/confirmCategoryDeletion", [CategoryController::class, "confirmCategoryDeletion"]);
 
 // expense
-Route::match(['get', 'post'], '/expenses', [WebController::class, 'showExpenses'])->name('expense.show');
-Route::post("/addExpense", [WebController::class, "addExpense"]);
-Route::get("/expense/edit/{id}", [WebController::class, "editExpense"])->name("expense.edit");
-Route::post("/verifyExpenseEditing", [WebController::class, "verifyExpenseEditing"]);
-Route::delete("/expense/delete/{id}", [WebController::class, "deleteExpense"])->name("expense.delete");
-Route::delete("/confirmExpenseDeletion", [WebController::class, "confirmExpenseDeletion"]);
+Route::match(['get', 'post'], '/expenses', [ExpenseController::class, 'showExpenses'])->name('expense.show');
+Route::post("/addExpense", [ExpenseController::class, "addExpense"]);
+Route::get("/expense/edit/{id}", [ExpenseController::class, "editExpense"])->name("expense.edit");
+Route::post("/verifyExpenseEditing", [ExpenseController::class, "verifyExpenseEditing"]);
+Route::delete("/expense/delete/{id}", [ExpenseController::class, "deleteExpense"])->name("expense.delete");
+Route::delete("/confirmExpenseDeletion", [ExpenseController::class, "confirmExpenseDeletion"]);
 
 // bank account
-Route::get("/bankAccounts", [WebController::class, "showBankAccounts"]);
-Route::post("/addBankAccount", [WebController::class, "addBankAccount"]);
-Route::get("/bankAccount/edit/{id}", [WebController::class, "editBankAccount"])->name("bankAccount.edit");
-Route::post("/verifyBankAccountEditing", [WebController::class, "verifyBankAccountEditing"]);
-Route::delete("/bankAccount/delete/{id}", [WebController::class, "deleteBankAccount"])->name("bankAccount.delete");
-Route::delete("/confirmBankAccountDeletion", [WebController::class, "confirmBankAccountDeletion"]);
+Route::get("/bankAccounts", [BankAccountController::class, "showBankAccounts"]);
+Route::post("/addBankAccount", [BankAccountController::class, "addBankAccount"]);
+Route::get("/bankAccount/edit/{id}", [BankAccountController::class, "editBankAccount"])->name("bankAccount.edit");
+Route::post("/verifyBankAccountEditing", [BankAccountController::class, "verifyBankAccountEditing"]);
+Route::delete("/bankAccount/delete/{id}", [BankAccountController::class, "deleteBankAccount"])->name("bankAccount.delete");
+Route::delete("/confirmBankAccountDeletion", [BankAccountController::class, "confirmBankAccountDeletion"]);

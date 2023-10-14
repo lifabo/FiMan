@@ -1,4 +1,13 @@
 $(document).ready(function () {
+    // define color for each category
+    const colorForEachCategory = {};
+    for (let i = 0; i < allCategories.length; i++) {
+        colorForEachCategory[allCategories[i].title] = getNextHexColor(i);
+
+        console.log(getNextHexColor(i));
+    }
+
+
     let CanvasExpensesAmountPerCategoryCurrentMonth = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonth");
     let CanvasExpensesAmountPerCategoryCurrentMonth2 = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonth2");
 
@@ -10,7 +19,7 @@ $(document).ready(function () {
     // add exactly as many background colors to the array as there are categories
     const backgroundColors = [];
     for (let i = 0; i < categoryLabels.length; i++) {
-        backgroundColors.push(getRandomHexColor());
+        backgroundColors.push(colorForEachCategory[categoryLabels[i]]);
     }
 
     let suggestedMax, suggestedMin;
@@ -40,7 +49,8 @@ $(document).ready(function () {
             scales: {
                 y: {
                     suggestedMax: suggestedMax,
-                    suggestedMin: suggestedMin
+                    suggestedMin: suggestedMin,
+                    reverse: true
                 }
             }
         }
@@ -86,12 +96,9 @@ $(document).ready(function () {
 
     // change color for each dataset
     for (let i = 0; i < datasets.length; i++) {
-        let color = getRandomHexColor();
-        datasets[i].borderColor = color;
-        datasets[i].backgroundColor = color;
+        datasets[i].borderColor = colorForEachCategory[datasets[i].label];
+        datasets[i].backgroundColor = colorForEachCategory[datasets[i].label];
     }
-
-    console.log(datasets);
 
     new Chart(CanvasExpensesAmountPerCategoryCurrentMonth2, {
         type: 'line',
@@ -105,6 +112,7 @@ $(document).ready(function () {
                     beginAtZero: true,
                     suggestedMax: 20,
                     suggestedMin: -5,
+                    reverse: true
                 },
             },
             elements: {
@@ -120,22 +128,22 @@ $(document).ready(function () {
 });
 
 
-function getRandomHexColor() {
-    // 20 random color codes
+function getNextHexColor(index) {
+    // random color codes
     const colors = [
-        "#317F43", "#C6A664", "#1D1E33", "#3D642D", "#2271B3",
-        "#015D52", "#F75E25", "#E6D690", "#CBD0CC", "#A03472",
-        "#57A639", "#EC7C26", "#7E7B52", "#FAD201", "#E1CC4F",
-        "#6F4F28", "#FE0000", "#826C34", "#2C5545", "#F8F32B",
-        "#9E9764", "#705335", "#9C9C9C", "#84C3BE", "#F8F32B",
-        "#592321", "#B5B8B1", "#8F8B66", "#E1CC4F", "#FE0000",
-        "#642424", "#6C6874", "#008F39", "#35682D", "#497E76",
-        "#1D1E33", "#E7EBDA", "#6C6960", "#75151E", "#B5B8B1",
-        "#3E3B32", "#4E5754", "#C51D34", "#B5B8B1", "#6C3B2A",
-        "#382C1E", "#3B83BD", "#282828", "#26252D", "#924E7D"
+        "#241023", "#6B0504", "#A3320B", "#D5E68D", "#47A025",
+        "#312F2F", "#84DCCF", "#A6D9F7", "#BCCCE0", "#BF98A0",
+        "#BF211E", "#F9DC5C", "#69A197", "#D8DBE2", "#58A4B0",
+        "#1B1B1E", "#ABE188", "#F1BB87", "#F7EF99", "#5D675B",
+        "#5F464B", "#8E4A49", "#7DAA92", "#C2FBEF", "#394053",
+        "#7CAE7A", "#E26D5C", "#723D46", "#472D30", "#7B435B"
+        //"#", "#", "#", "#", "#",
+        //"#", "#", "#", "#", "#",
+        //"#", "#", "#", "#", "#",
+        //"#", "#", "#", "#", "#"
     ];
 
-    return colors[Math.floor(Math.random() * 19)];
+    return colors[index % (colors.length - 1)];
 }
 
 function replaceNullValue(data, replacement) {

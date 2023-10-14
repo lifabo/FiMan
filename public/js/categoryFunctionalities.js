@@ -10,24 +10,24 @@ $(document).ready(function () {
     //#region set autofocus for modal input fields
     const categoryModal = document.getElementById('categoryModal');
     const confirmDeleteModal = document.getElementById('confirmDeleteModal');
-    const txtTitle = document.getElementById('txtTitle');
-    const txtTitleDelete = document.getElementById('txtTitleDelete');
+    const inpTitle = document.getElementById('inpTitle');
+    const inpTitleDelete = document.getElementById('inpTitleDelete');
 
     categoryModal.addEventListener('shown.bs.modal', () => {
-        txtTitle.focus()
+        inpTitle.focus()
     });
 
     confirmDeleteModal.addEventListener('shown.bs.modal', () => {
-        txtTitleDelete.focus()
+        inpTitleDelete.focus()
     });
 
     //#endregion
 
     //#region check confirm delete input value
-    txtTitleDelete.addEventListener("input", function () {
+    inpTitleDelete.addEventListener("input", function () {
 
         const btnConfirmDelete = document.getElementById("btnConfirmDelete");
-        if (txtTitleDelete.value == confirmDeleteTitle) {
+        if (inpTitleDelete.value == confirmDeleteTitle) {
             btnConfirmDelete.classList.remove("disabled");
         }
         else {
