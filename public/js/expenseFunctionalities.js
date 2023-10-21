@@ -1,4 +1,8 @@
 $(document).ready(function () {
+    //#region set default timestamp value to current date
+    document.getElementById("inpTimestamp").value = new Date().toISOString().split('T')[0];
+    //#endregion
+
     // in case creation of category/expense fails, modal should stay open and display an error message
     if (shouldOpenModal == "add" || shouldOpenModal == "edit") {
         $("#expenseModal").modal('show');
@@ -6,6 +10,25 @@ $(document).ready(function () {
     } else if (shouldOpenModal == "confirmDelete") {
         $('#confirmDeleteModal').modal('show');
     }
+
+    //#region prevent multiple form submitions
+    let formSubmitted = false;
+    document.getElementById("formAddEditExpense").addEventListener("submit", function (event) {
+        if (formSubmitted) {
+            event.preventDefault();
+        } else {
+            formSubmitted = true;
+        }
+    });
+
+    document.getElementById("formDeleteExpense").addEventListener("submit", function (event) {
+        if (formSubmitted) {
+            event.preventDefault();
+        } else {
+            formSubmitted = true;
+        }
+    });
+    //#endregion
 
     //#region set autofocus for modal input fields
     const expenseModal = document.getElementById('expenseModal');

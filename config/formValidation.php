@@ -2,5 +2,5 @@
 
 return [
     'maxInputLengthShort' => 50,
-    'maxInputLengthLong' => 2,
+    'maxInputLengthLong' => 300,
 ];

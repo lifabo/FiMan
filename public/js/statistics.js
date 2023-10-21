@@ -7,7 +7,6 @@ $(document).ready(function () {
         console.log(getNextHexColor(i));
     }
 
-
     let CanvasExpensesAmountPerCategoryCurrentMonth = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonth");
     let CanvasExpensesAmountPerCategoryCurrentMonth2 = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonth2");
 
@@ -137,10 +136,7 @@ function getNextHexColor(index) {
         "#1B1B1E", "#ABE188", "#F1BB87", "#F7EF99", "#5D675B",
         "#5F464B", "#8E4A49", "#7DAA92", "#C2FBEF", "#394053",
         "#7CAE7A", "#E26D5C", "#723D46", "#472D30", "#7B435B"
-        //"#", "#", "#", "#", "#",
-        //"#", "#", "#", "#", "#",
-        //"#", "#", "#", "#", "#",
-        //"#", "#", "#", "#", "#"
+
     ];
 
     return colors[index % (colors.length - 1)];

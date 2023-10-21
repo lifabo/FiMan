@@ -44,6 +44,12 @@ class LoginController extends Controller
             session()->put("loggedInUsername", $dbUserData->username);
             session()->put("loggedInUserID", $dbUserData->id);
 
+            // save last successful login
+            date_default_timezone_set('Europe/Berlin');
+            UserAccount::where('username', $formUserName)->first()->update([
+                "lastLogin" => date('Y-m-d H:i:s')
+            ]);
+
             return redirect("/");
         }
     }

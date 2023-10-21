@@ -10,7 +10,10 @@
 
 @section('pageDescription')
     Hier kannst du deine Ausgaben für jedes Konto verwalten: neue hinzufügen und bestehende bearbeiten oder
-    löschen.
+    löschen. <br>
+    Da du hier vermutlich nicht 100% der vergangenen Kontobewebungen abbilden wirst, kannst du einfach eine neue Ausgabe
+    erstellen, die deinen aktuellen Kontostand beim Start des Trackings enthält. Somit wird dein Kontostand richtig
+    berechnet.
 @endsection
 
 @section('content')
@@ -46,8 +49,8 @@
 
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
-    <div class="table-responsive mt-4">
-        <table class="table table-white table-hover table-bordered" id="tblExpenses">
+    <div class="table-responsive mt-5">
+        <table class="table table-hover table-bordered" id="tblExpenses">
             <thead>
                 <tr>
                     <th class="text-center">Datum</th>
@@ -113,14 +116,12 @@
                 </div>
 
                 <form action="{{ session('shouldOpenModal') == 'edit' ? '/verifyExpenseEditing' : '/addExpense' }}"
-                    method="post">
+                    method="post" id="formAddEditExpense">
                     <div class="modal-body">
                         @csrf
                         <div class="form-group">
                             <label for="inpTimestamp" class="py-2">Datum der Ausgabe</label>
-                            <input type="date" class="form-control"
-                                value="{{ session('shouldOpenModal') == 'edit' ? session('timestamp') : date('Y-m-d') }}"
-                                name="timestamp" id="inpTimestamp" required>
+                            <input type="date" class="form-control" name="timestamp" id="inpTimestamp" required>
 
                             <label for="inpAmount" class="py-2">Betrag</label>
                             <input type="number"
@@ -142,7 +143,8 @@
                                         {{ $category->title }}</option>
                                 @endforeach
                             </select>
-                            <small class="form-text text-muted">Wenn die Kategorie leer bleiben soll, kannst du die
+                            <small class="form-text text-muted">Wenn die Kategorie leer bleiben soll, kannst du
+                                die
                                 Standardoption "Bitte auswählen"
                                 auswählen.</small>
                         </div>
@@ -178,7 +180,7 @@
                     <button id="btnDismissDelete" class="btn btn-primary" type="button"
                         data-bs-dismiss="modal">Abbrechen</button>
 
-                    <form action="/confirmExpenseDeletion" method="post">
+                    <form action="/confirmExpenseDeletion" method="post" id="formDeleteExpense">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-danger" id="btnConfirmDelete" type="submit">Löschen</button>

@@ -34,34 +34,38 @@ class CategoryController extends Controller
 
     public function addCategory(Request $request)
     {
-        session()->put("shouldOpenModal", "add");
-
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
-            // store title in session
-            session()->flash("title", $request->input("title"));
+
+            $error = false;
+            $modalStatus = "";
 
             // title unqualified (null or whitespaces)
             if ($request->input("title") == "" || trim($request->input("title") == "")) {
-                return redirect("/categories")->with([
-                    "shouldOpenModal" => "add",
-                    "modalStatus" => "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen."
-                ]);
+                $error = true;
+
+                $modalStatus = "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.";
             }
             // title length exceeds maximum
             else if (mb_strlen($request->input("title")) > config("formValidation.maxInputLengthShort")) {
-                return redirect("/categories")->with([
-                    "shouldOpenModal" => "add",
-                    "modalStatus" => "Der Name ist zu lang."
-                ]);
+                $error = true;
+
+                $modalStatus = "Der Name ist zu lang.";
             }
             // category already exists
             else if ($this->checkIfCategoryExists($request->input("title"))) {
-                session()->flash("modalStatus", "Eine Kategorie mit dem Namen '" . $request->input('title') . "' existiert bereits.");
+                $error = true;
+
+                $modalStatus = "Eine Kategorie mit dem Namen '" . $request->input('title') . "' existiert bereits.";
+            }
+
+            // error has occured
+            if ($error) {
                 return redirect("/categories")->with([
                     "shouldOpenModal" => "add",
-                    "title" => $request->input("title")
+                    "title" => $request->input("title"),
+                    "modalStatus" => $modalStatus
                 ]);
             }
             // no errors, create category
@@ -81,7 +85,11 @@ class CategoryController extends Controller
 
     public function editCategory($id)
     {
-        $dbCategoryData = Category::where("id", $id)->first();
+        // retrieve category data if $id is a category of currently logged in user
+        $dbCategoryData = Category::where("id", $id)
+            ->where("userAccountID", session("loggedInUserID"))
+            ->select("title")
+            ->first();
 
         // category with $id does not exist
         if ($dbCategoryData == null)
@@ -99,38 +107,37 @@ class CategoryController extends Controller
     public function verifyCategoryEditing(Request $request)
     {
         $error = false;
+        $modalStatus = "";
 
-        // error handling
         //  null or only whitespaces
         if ($request->input("title") == null || trim($request->input("title")) == "") {
             $error = true;
 
-            session()->flash("modalStatus", "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.");
+            $modalStatus = "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.";
         }
         // title length exceeds maximum
         else if (mb_strlen($request->input("title")) > config("formValidation.maxInputLengthShort")) {
             $error = true;
 
-            session()->flash("modalStatus", "Der Name ist zu lang.");
+            $modalStatus = "Der Name ist zu lang.";
         }
         // category already exists
         if ($this->checkIfCategoryExists($request->input("title"))) {
             $error = true;
 
-            session()->flash("modalStatus", "Eine Kategorie mit dem Namen '" . $request->input('title') . "' existiert bereits.");
+            $modalStatus = "Eine Kategorie mit dem Namen '" . $request->input('title') . "' existiert bereits.";
         }
 
 
         //  error has occured
         if ($error) {
-            //session()->flash("title", $request->input("title"));
-
             return redirect("/categories")->with([
                 "shouldOpenModal" => "edit",
-                "title" => $request->input("title")
+                "title" => $request->input("title"),
+                "modalStatus" => $modalStatus
             ]);
         }
-        // successful, update category
+        // no errors, update category
         else {
             Category::where("id", session("currentCategoryEditingID"))->first()->update([
                 "title" => $request->input("title")
@@ -169,6 +176,7 @@ class CategoryController extends Controller
         Category::where("id", session("currentCategoryDeletingID"))->first()->delete();
 
         session()->forget("currentCategoryDeletingID");
+
         session()->flash("status", "Kategorie erfolgreich gelöscht.");
         session()->flash("showAlert", "true");
         session()->flash("successAlert", "false");

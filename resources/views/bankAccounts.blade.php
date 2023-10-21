@@ -39,7 +39,7 @@
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
     <div class="table-responsive mt-4">
-        <table class="table table-white table-hover table-bordered">
+        <table class="table table-hover table-bordered">
             <thead>
                 <tr>
                     <th class="text-center">Name</th>
@@ -97,7 +97,7 @@
                 </div>
 
                 <form action="{{ session('shouldOpenModal') == 'edit' ? '/verifyBankAccountEditing' : '/addBankAccount' }}"
-                    method="post">
+                    method="post" id="formAddEditBankAccount">
                     <div class="modal-body">
                         @csrf
                         <div class="form-group">
@@ -116,7 +116,7 @@
                                 <input type="number" placeholder="{{ session('balance') }}"
                                     value="{{ session('balance') }}" class="form-control" id="txtBalance" disabled>
 
-                                <small for="txtBalance" class="form-text text-muted">Der Kontostand wird automatisch
+                                <small for="txtBalance" class="">Der Kontostand wird automatisch
                                     durch das Verwalten der Ausgaben aktualisiert.</small>
                             @endif
                         </div>
@@ -162,7 +162,7 @@
                     <button id="btnDismissDelete" class="btn btn-primary" type="button"
                         data-bs-dismiss="modal">Abbrechen</button>
 
-                    <form action="/confirmBankAccountDeletion" method="post">
+                    <form action="/confirmBankAccountDeletion" method="post" id="formDeleteBankAccount">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-danger" id="btnConfirmDelete" type="submit">Löschen</button>

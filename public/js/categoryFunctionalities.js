@@ -7,6 +7,28 @@ $(document).ready(function () {
         $('#confirmDeleteModal').modal('show');
     }
 
+    //#region prevent multiple form submitions
+    let formSubmitted = false;
+    console.log("before: ", formSubmitted);
+    document.getElementById("formAddEditCategory").addEventListener("submit", function (event) {
+        console.log("add: ", formSubmitted);
+        if (formSubmitted) {
+            event.preventDefault();
+        } else {
+            formSubmitted = true;
+        }
+    });
+
+    document.getElementById("formDeleteCategory").addEventListener("submit", function (event) {
+        console.log("delete: ", formSubmitted);
+        if (formSubmitted) {
+            event.preventDefault();
+        } else {
+            formSubmitted = true;
+        }
+    });
+    //#endregion
+
     //#region set autofocus for modal input fields
     const categoryModal = document.getElementById('categoryModal');
     const confirmDeleteModal = document.getElementById('confirmDeleteModal');

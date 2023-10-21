@@ -7,6 +7,25 @@ $(document).ready(function () {
         $('#confirmDeleteModal').modal('show');
     }
 
+    //#region prevent multiple form submitions
+    let formSubmitted = false;
+    document.getElementById("formAddEditBankAccount").addEventListener("submit", function (event) {
+        if (formSubmitted) {
+            event.preventDefault();
+        } else {
+            formSubmitted = true;
+        }
+    });
+
+    document.getElementById("formDeleteBankAccount").addEventListener("submit", function (event) {
+        if (formSubmitted) {
+            event.preventDefault();
+        } else {
+            formSubmitted = true;
+        }
+    });
+    //#endregion
+
     //#region set autofocus for modal input fields
     const bankAccountModal = document.getElementById('bankAccountModal');
     const inpTitle = document.getElementById('inpTitle');

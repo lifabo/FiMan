@@ -20,8 +20,9 @@
         const confirmDeleteTitle = @json(session('confirmDeleteTitle'));
         const showAlert = @json(session('showAlert'));
         const successAlert = @json(session('successAlert'));
+        const hallo = @json(session('hallo123'));
 
-        console.log(shouldOpenModal);
+        console.log(hallo);
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
@@ -30,7 +31,7 @@
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
     <div class="table-responsive">
-        <table class="table table-white table-hover table-bordered">
+        <table class="table table-hover table-bordered">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -83,7 +84,7 @@
                 </div>
 
                 <form action="{{ session('shouldOpenModal') == 'edit' ? '/verifyCategoryEditing' : '/addCategory' }}"
-                    method="post">
+                    method="post" id="formAddEditCategory">
                     <div class="modal-body">
                         @csrf
                         <div class="form-group">
@@ -143,7 +144,7 @@
                     <button id="btnDismissDelete" class="btn btn-primary" type="button"
                         data-bs-dismiss="modal">Abbrechen</button>
 
-                    <form action="/confirmCategoryDeletion" method="post">
+                    <form action="/confirmCategoryDeletion" method="post" id="formDeleteCategory">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-danger disabled" id="btnConfirmDelete" type="submit">Löschen</button>

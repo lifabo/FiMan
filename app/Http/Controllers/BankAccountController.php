@@ -14,7 +14,9 @@ class BankAccountController extends Controller
             return redirect("/login");
         else {
 
-            $bankAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))->get();
+            $bankAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))
+                ->select("id", "title", "description", "balance")
+                ->get();
 
             $balanceAllAccounts = BankAccount::where("userAccountID", session("loggedInUserID"))
                 ->sum("balance");
@@ -32,25 +34,25 @@ class BankAccountController extends Controller
             return redirect("/login");
         else {
             $error = false;
+            $modalStatus = "";
 
-            // error handling
             // title unqualified (null or whitespaces)
             if ($request->input("title") == "" || trim($request->input("title") == "")) {
                 $error = true;
 
-                session()->flash("modalStatus", "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.");
+                $modalStatus = "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.";
             }
             // title length exceeds maximum
             if (mb_strlen($request->input("title")) > config("formValidation.maxInputLengthShort")) {
                 $error = true;
 
-                session()->flash("modalStatus", "Der Name ist zu lang.");
+                $modalStatus = "Der Name ist zu lang.";
             }
             // description length exceeds maximum
             else if (mb_strlen($request->input("description")) > config("formValidation.maxInputLengthLong")) {
                 $error = true;
 
-                session()->flash("modalStatus", "Die Beschreibung ist zu lang.");
+                $modalStatus = "Die Beschreibung ist zu lang.";
             }
 
             //  error has occured
@@ -58,13 +60,15 @@ class BankAccountController extends Controller
                 return redirect("/bankAccounts")->with([
                     "shouldOpenModal" => "add",
                     "title" => $request->input("title"),
-                    "description" => $request->input("description")
+                    "description" => $request->input("description"),
+                    "modalStatus" => $modalStatus
                 ]);
-            } else {
-
+            }
+            // no errors, create bank account
+            else {
                 BankAccount::create([
                     "title" => $request->input("title"),
-                    "description" => $request->input("description") == "" ? "" : $request->input("description"),
+                    "description" => $request->input("description") ?? "",
                     "balance" => "0",
                     "userAccountID" => session("loggedInUserID")
                 ]);
@@ -80,13 +84,21 @@ class BankAccountController extends Controller
 
     public function editBankAccount($id)
     {
-        $dbBankAccountData = BankAccount::where("id", $id)->first();
+        // retrieve bank account data if $id is a bank account of currently logged in user
+        $dbBankAccountData = BankAccount::where("id", $id)
+            ->where("userAccountID", session("loggedInUserID"))
+            ->select("title", "description", "balance")
+            ->first();
 
         // bank account with $id does not exist
         if ($dbBankAccountData == null)
             return redirect("/bankAccounts");
         else {
             session()->put("currentBankAccountEditingID", $id);
+
+            // store balance in session in order for it to be displayed even after
+            // multiple invalid form submits. this has to happen here because balance
+            // is not part of the submition unlike the other properties
             session()->put("balance", $dbBankAccountData->balance);
 
             return redirect("/bankAccounts")->with([
@@ -100,25 +112,25 @@ class BankAccountController extends Controller
     public function verifyBankAccountEditing(Request $request)
     {
         $error = false;
+        $modalStatus = "";
 
-        // error handling
         //  null or only whitespaces
         if ($request->input("title") == null || trim($request->input("title")) == "") {
             $error = true;
 
-            session()->flash("modalStatus", "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.");
+            $modalStatus = "Der Name darf nicht leer sein oder nur aus Leerzeichen bestehen.";
         }
         // title length exceeds maximum
         else if (mb_strlen($request->input("title")) > config("formValidation.maxInputLengthShort")) {
             $error = true;
 
-            session()->flash("modalStatus", "Der Name ist zu lang.");
+            $modalStatus = "Der Name ist zu lang.";
         }
         // description length exceeds maximum
         else if (mb_strlen($request->input("description")) > config("formValidation.maxInputLengthLong")) {
             $error = true;
 
-            session()->flash("modalStatus", "Die Beschreibung ist zu lang.");
+            $modalStatus = "Die Beschreibung ist zu lang.";
         }
 
         //  error has occured
@@ -126,17 +138,19 @@ class BankAccountController extends Controller
             return redirect("/bankAccounts")->with([
                 "shouldOpenModal" => "edit",
                 "title" => $request->input("title"),
-                "description" => $request->input("description")
+                "description" => $request->input("description"),
+                "modalStatus" => $modalStatus
             ]);
-        } else {
-
-            // update expense
+        }
+        // no errors, update bank account
+        else {
             BankAccount::where("id", session("currentBankAccountEditingID"))->first()->update([
                 "title" => $request->input("title"),
-                "description" => $request->input("description") == "" ? "" : $request->input("description")
+                "description" => $request->input("description") ?? ""
             ]);
 
             session()->forget("currentBankAccountEditingID");
+            session()->forget("balance");
 
             session()->flash("status", "Konto erfolgreich bearbeitet.");
             session()->flash("showAlert", "true");
@@ -167,13 +181,19 @@ class BankAccountController extends Controller
     {
         BankAccount::where("id", session("currentBankAccountDeletingID"))->first()->delete();
 
+        // in the expenses view the currently selected bank account from the drop down is stored in the
+        // session, so that if the user returns to the expenses page, the lastly selected bank account
+        // is loaded and not just the first one. this id has to be deleted from the session if the bank
+        // account itself gets deleted as well
         if (session("currentSelectedBankAccountID") == session("currentBankAccountDeletingID"))
             session()->forget("currentSelectedBankAccountID");
 
         session()->forget("currentBankAccountDeletingID");
+
         session()->flash("status", "Konto erfolgreich gelöscht.");
         session()->flash("showAlert", "true");
         session()->flash("successAlert", "false");
+
         return redirect("/bankAccounts");
     }
 }

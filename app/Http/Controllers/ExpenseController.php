@@ -20,7 +20,8 @@ class ExpenseController extends Controller
             if ($request->filled("bankAccountID")) {
                 $bankAccountID = $request->input("bankAccountID");
             }
-            // first load of site, user has not manually selected and there is no session variable for bank account id yet, so use default first bank account id of the user
+            // first load of site, user has not manually selected and there is no session variable for bank account id yet,
+            // so use first bank account id of the user as default
             else if (!$request->filled("bankAccountID") && !session()->has("currentSelectedBankAccountID")) {
 
                 // first() can return null, so you have to catch that case
@@ -28,7 +29,7 @@ class ExpenseController extends Controller
 
                 $bankAccountID = $bankAccountID->id ?? null;
             }
-            // expense was added, edited or deleted, there already is a session variable for bank account id, so use session variable
+            // expense was added, edited or deleted, so there already is a session variable for bank account id, so use session variable
             else {
                 $bankAccountID = session()->get("currentSelectedBankAccountID");
             }
@@ -43,7 +44,9 @@ class ExpenseController extends Controller
                 ->orderByDesc('ID')
                 ->get() : array();
 
+            // retrieve categories of user
             $categories = Category::where("userAccountID", session("loggedInUserID"))
+                ->select("id", "title")
                 ->orderBy("title")
                 ->get();
 
@@ -55,12 +58,14 @@ class ExpenseController extends Controller
             $bankAccountID == null ? session()->flash("disableControls", true)
                 : session()->flash("disableControls", false);
 
+            // bank account id is null, so the user has no bank accounts
             if ($bankAccountID == null) {
                 session()->now("status", "Du hast noch kein Konto zu dem du Ausgaben hinzufügen kannst. Wechsle zur Seite \"Konten\" in der Menüleiste, um ein Konto zu erstellen.");
                 session()->now("showAlert", "true");
                 session()->now("successAlert", "false");
             }
 
+            // set balance to a default of 0, if the user has a bank account then load the balance of the currently selected bank account
             $balance = 0;
             if ($bankAccountID != null)
                 $balance = BankAccount::where("id", $bankAccountID)->first()->balance;
@@ -80,32 +85,41 @@ class ExpenseController extends Controller
         if (!session()->has('loggedInUsername'))
             return redirect("/login");
         else {
+            $error = false;
+            $modalStatus = "";
+
+            // todo: check if request->amount is really a number
+            // todo: check if request->timestamp is really a date
 
             // description length exceeds maximum
             if (mb_strlen($request->input("description")) > config("formValidation.maxInputLengthLong")) {
+                $error = true;
 
-                session()->flash("modalStatus", "Der Name ist zu lang.");
+                $modalStatus = "Die Beschreibung ist zu lang.";
+            }
 
+            // error has occured
+            if ($error) {
                 return redirect("/expenses")->with([
                     "shouldOpenModal" => "edit",
                     "timestamp" => $request->input("timestamp"),
                     "amount" => $request->input("amount"),
-                    "description" => $request->input("description") == "" ? "" : $request->input("description"),
-                    "categoryID" => $request->input("category")
+                    "description" => $request->input("description") ?? "",
+                    "categoryID" => $request->input("category"),
+                    "modalStatus" => $modalStatus
                 ]);
             }
-            // no errors
+            // no errors, create expense
             else {
-
                 Expense::create([
                     "timestamp" => $request->input("timestamp"),
                     "amount" => $request->input("amount"),
                     "description" => $request->input("description") == "" ? "" : $request->input("description"),
                     "categoryID" => $request->input("category"),
-                    "bankAccountID" => session()->get("currentSelectedBankAccountID")
+                    "bankAccountID" => session("currentSelectedBankAccountID")
                 ]);
 
-                $this->updateBankAccountBalance(session()->get("currentSelectedBankAccountID"));
+                $this->updateBankAccountBalance(session("currentSelectedBankAccountID"));
 
                 session()->flash("status", "Ausgabe erfolgreich erstellt.");
                 session()->flash("showAlert", "true");
@@ -139,26 +153,35 @@ class ExpenseController extends Controller
 
     public function verifyExpenseEditing(Request $request)
     {
+        $error = false;
+        $modalStatus = "";
+
+        // todo: check if request->amount is really a number
+        // todo: check if request->timestamp is really a date
+
         // description length exceeds maximum
         if (mb_strlen($request->input("description")) > config("formValidation.maxInputLengthLong")) {
+            $error = false;
 
-            session()->flash("modalStatus", "Der Name ist zu lang.");
+            $modalStatus = "Der Name ist zu lang.";
+        }
 
+        if ($error) {
             return redirect("/expenses")->with([
                 "shouldOpenModal" => "edit",
                 "timestamp" => $request->input("timestamp"),
                 "amount" => $request->input("amount"),
                 "description" => $request->input("description"),
-                "categoryID" => $request->input("category")
+                "categoryID" => $request->input("category"),
+                "modalStatus" => $modalStatus
             ]);
         }
-        // no errors
+        // no errors, update expense
         else {
-            // update expense
             Expense::where("id", session("currentExpenseEditingID"))->first()->update([
                 "timestamp" => $request->input("timestamp"),
                 "amount" => $request->input("amount"),
-                "description" => $request->input("description") == "" ? "" : $request->input("description"),
+                "description" => $request->input("description") ?? "",
                 "categoryID" => $request->input("category")
             ]);
 
@@ -193,13 +216,14 @@ class ExpenseController extends Controller
     {
         Expense::where("id", session("currentExpenseDeletingID"))->first()->delete();
 
-
         $this->updateBankAccountBalance(session()->get("currentSelectedBankAccountID"));
 
         session()->forget("currentExpenseDeletingID");
+
         session()->flash("status", "Ausgabe erfolgreich gelöscht.");
         session()->flash("showAlert", "true");
         session()->flash("successAlert", "false");
+
         return redirect("/expenses");
     }
 

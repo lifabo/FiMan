@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankAccount;
 use App\Models\Category;
 use App\Models\Expense;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,18 @@ class StatisticController extends Controller
                 ->groupBy(DB::raw('MONTHNAME(expense.timestamp)'))
                 ->orderBy("expense.timestamp")
                 ->get();
+
+
+            /*$bankAccountsBalancePerMonthLast12Months = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+                ->where("bank_account.userAccountID", session("loggedInUserID"))
+                ->groupBy("bankAccountID")
+                ->groupBy(DB::raw('MONTHNAME(expense.timestamp)'))
+                ->selectRaw("SUM(amount), MONTHNAME(expense.timestamp) as month")
+                ->orderBy("expense.timestamp")
+                ->get();
+
+            dd($bankAccountsBalancePerMonthLast12Months);
+            */
 
             session()->put("expensesAmountPerCategoryCurrentMonth", $expensesAmountPerCategoryCurrentMonth);
             session()->put("expensesAmountPerCategoryPerMonthLast12Months", $expensesAmountPerCategoryPerMonthLast12Months);

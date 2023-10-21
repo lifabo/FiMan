@@ -1,0 +1,24 @@
+// overwrite existing variables here
+// $primary: #1E92C8;
+// $secondary: #092D3F;
+// $light: #E4F4FB;
+
+// $input-placeholder-color: white;
+
+// import the functions & variables
+@import "../node_modules/bootstrap/scss/_functions";
+@import "../node_modules/bootstrap/scss/_variables";
+
+// add new color variables here
+// $customThemeColors: (
+//     "altdark": #05171F,
+//     "accent": #1F98D1,
+//     "grey": #918c8c
+// );
+
+// update actual color array and complement above colors
+// $theme-colors: map-merge($customThemeColors , $theme-colors);
+
+
+// import bootstrap
+@import '../node_modules/bootstrap/scss/bootstrap';
