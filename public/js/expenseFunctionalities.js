@@ -1,6 +1,8 @@
 $(document).ready(function () {
     //#region set default timestamp value to current date
-    document.getElementById("inpTimestamp").value = new Date().toISOString().split('T')[0];
+    let inpTimestamp = document.getElementById("inpTimestamp");
+    if (inpTimestamp.value == "")
+        inpTimestamp.value = new Date().toISOString().split('T')[0];
     //#endregion
 
     // in case creation of category/expense fails, modal should stay open and display an error message
@@ -59,11 +61,11 @@ $(document).ready(function () {
     //#endregion
 
     //#region load expenses of bank account when selected bank account changes
-    const selectBankAccountForm = document.getElementById("selectBankAccountForm");
+    const formSelectBankAccount = document.getElementById("formSelectBankAccount");
     const selectBankAccount = document.getElementById("selectBankAccount");
 
     selectBankAccount.addEventListener('change', function () {
-        selectBankAccountForm.submit();
+        formSelectBankAccount.submit();
     });
     //#endregion
 

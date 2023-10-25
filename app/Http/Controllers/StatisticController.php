@@ -27,7 +27,6 @@ class StatisticController extends Controller
                 ->selectRaw("category.title as categoryTitle, SUM(amount) as totalAmount")
                 ->get();
 
-
             $expensesAmountPerCategoryPerMonthLast12Months = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
                 ->leftJoin("category", "expense.categoryID", "category.id")
                 ->where("bank_account.userAccountID", session("loggedInUserID"))

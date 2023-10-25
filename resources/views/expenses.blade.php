@@ -26,7 +26,7 @@
     </script>
 
     <label id="lblSelectBankAccount" for="selectBankAccountForm" class="fw-bold mb-2">Konto auswählen:</label>
-    <form action="/expenses" method="post" id="selectBankAccountForm">
+    <form action="/expenses" method="post" id="formSelectBankAccount">
         @csrf
         <select class="form-select mb-3" id="selectBankAccount" name="bankAccountID">
             @foreach ($bankAccounts as $bankAccount)
@@ -48,6 +48,33 @@
     </div>
 
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
+
+    <label id="lblSumOfTransactionsThisMonth" for="sumOfTransactionsThisMonth" class="fw-bold mb-2">
+        Kontobewegung im aktuellen Monat:
+    </label>
+
+    <div id="sumOfTransactionsCurrentMonth" class="d-flex">
+        <div class="d-flex align-items-center">
+            <img src="/img/plusIcon.png" width="35" height="35" class="mr-2">
+            <span class="fw-bolder mb-0 text-success"
+                style="font-size: 25px">{{ number_format($positiveAmountCurrentMonth, 2, ',', '.') }}€</span>
+        </div>
+        <div class="d-flex align-items-center">
+            <img src="/img/minusIcon.png" width="35" height="35" class="mr-2">
+            <span class="fw-bolder mb-0 text-danger"
+                style="font-size: 25px">{{ number_format($negativeAmountCurrentMonth, 2, ',', '.') }}€</span>
+        </div>
+    </div>
+
+    {{-- <form action="/expenses" method="post" id="formFilterCategory">
+        @csrf
+        <select class="form-select w-25" id="selectFilterCategory" name="bankAccountID">
+            @foreach ($categories as $category)
+                <option value={{ $category->id }} {{ session('categoryID') == $category->id ? 'selected' : '' }}>
+                    {{ $category->title }}</option>
+            @endforeach
+        </select>
+    </form> --}}
 
     <div class="table-responsive mt-5">
         <table class="table table-hover table-bordered" id="tblExpenses">
@@ -121,7 +148,8 @@
                         @csrf
                         <div class="form-group">
                             <label for="inpTimestamp" class="py-2">Datum der Ausgabe</label>
-                            <input type="date" class="form-control" name="timestamp" id="inpTimestamp" required>
+                            <input type="date" class="form-control" name="timestamp" id="inpTimestamp"
+                                value="{{ session('timestamp') }}" required>
 
                             <label for="inpAmount" class="py-2">Betrag</label>
                             <input type="number"

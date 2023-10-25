@@ -70,12 +70,37 @@ class ExpenseController extends Controller
             if ($bankAccountID != null)
                 $balance = BankAccount::where("id", $bankAccountID)->first()->balance;
 
+
+            // only calculate sum if user has at least one bank account
+            $positiveAmountCurrentMonth = 0;
+            $negativeAmountCurrentMonth = 0;
+            if ($bankAccountID != null) {
+                // retrieve sum of positive and negative transactions in this month from database
+                $positiveAmountCurrentMonth = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+                    ->where("bank_account.userAccountID", session("loggedInUserID"))
+                    ->where("bank_account.id", $bankAccountID)
+                    ->whereRaw('MONTH(expense.timestamp) = MONTH(NOW())')
+                    ->where('expense.amount', '>', 0)
+                    ->sum("amount");
+
+                // multiplying with -1 in order to get rid of the minus symbol, there is already a minus icon in the expense view
+                $negativeAmountCurrentMonth = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+                    ->where("bank_account.userAccountID", session("loggedInUserID"))
+                    ->where("bank_account.id", $bankAccountID)
+                    ->whereRaw('MONTH(expense.timestamp) = MONTH(NOW())')
+                    ->where('expense.amount', '<', 0)
+                    ->sum("amount") * -1;
+            }
+
+
             return view("expenses", [
                 "expenses" => $expenses,
                 "categories" => $categories,
                 "bankAccounts" => $bankAccounts,
                 "selectedBankAccountID" => $bankAccountID,
-                "balance" => $balance
+                "balance" => $balance,
+                "positiveAmountCurrentMonth" => $positiveAmountCurrentMonth,
+                "negativeAmountCurrentMonth" => $negativeAmountCurrentMonth
             ]);
         }
     }
