@@ -37,6 +37,17 @@ class StatisticController extends Controller
                 ->orderBy("expense.timestamp")
                 ->get();
 
+            $expensesMonthlyBalanceLast12Months = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+                ->where("bank_account.userAccountID", session("loggedInUserID"))
+                ->whereRaw("expense.timestamp >= DATE_SUB(NOW(), INTERVAL 12 MONTH)")
+                ->selectRaw("MONTHNAME(expense.timestamp) as month, SUM(CASE WHEN expense.amount >= 0 THEN expense.amount ELSE 0 END) AS allPositiveAmounts,
+                    SUM(CASE WHEN expense.amount < 0 THEN expense.amount ELSE 0 END) AS allNegativeAmounts,
+                    SUM(expense.amount) AS balance")
+                ->groupBy(DB::raw('MONTHNAME(expense.timestamp)'))
+                ->orderBy("expense.timestamp")
+                ->get();
+
+            //  dd($expensesMonthlyBalanceLast12Months);
 
             /*$bankAccountsBalancePerMonthLast12Months = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
                 ->where("bank_account.userAccountID", session("loggedInUserID"))
@@ -49,9 +60,10 @@ class StatisticController extends Controller
             dd($bankAccountsBalancePerMonthLast12Months);
             */
 
+            session()->put("allCategories", $allCategories);
             session()->put("expensesAmountPerCategoryCurrentMonth", $expensesAmountPerCategoryCurrentMonth);
             session()->put("expensesAmountPerCategoryPerMonthLast12Months", $expensesAmountPerCategoryPerMonthLast12Months);
-            session()->put("allCategories", $allCategories);
+            session()->put("expensesMonthlyBalanceLast12Months", $expensesMonthlyBalanceLast12Months);
 
             return view("statistics");
         }

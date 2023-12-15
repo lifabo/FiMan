@@ -153,7 +153,7 @@
 
                             <label for="inpAmount" class="py-2">Betrag</label>
                             <input type="number"
-                                placeholder="{{ session('shouldOpenModal') == 'edit' ? session('amount') : 'z.B. 9,99€' }}"
+                                placeholder="{{ session('shouldOpenModal') == 'edit' ? session('amount') : 'z.B. -9,99€' }}"
                                 value="{{ session('amount') }}" step="0.01" class="form-control" name="amount"
                                 id="inpAmount" autocomplete="off" required>
 

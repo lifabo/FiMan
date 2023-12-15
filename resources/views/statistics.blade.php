@@ -15,6 +15,7 @@
         const allCategories = @json(session('allCategories'));
         const expensesAmountPerCategoryCurrentMonth = @json(session('expensesAmountPerCategoryCurrentMonth'));
         const expensesAmountPerCategoryPerMonthLast12Months = @json(session('expensesAmountPerCategoryPerMonthLast12Months'));
+        const expensesMonthlyBalanceLast12Months = @json(session('expensesMonthlyBalanceLast12Months'));
     </script>
 
     <div class="container">
@@ -24,7 +25,13 @@
             </div>
             <div class="col-1"></div>
             <div class="col">
-                <canvas id="CanvasExpensesAmountPerCategoryCurrentMonth2"></canvas>
+                <canvas id="CanvasExpensesAmountPerCategoryLast12Months"></canvas>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-8">
+                <canvas id="CanvasExpensesMonthlyBalanceLast12Months"></canvas>
             </div>
         </div>
     </div>

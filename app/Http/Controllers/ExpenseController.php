@@ -88,7 +88,7 @@ class ExpenseController extends Controller
                     ->where("bank_account.userAccountID", session("loggedInUserID"))
                     ->where("bank_account.id", $bankAccountID)
                     ->whereRaw('MONTH(expense.timestamp) = MONTH(NOW())')
-                    ->where('expense.amount', '<', 0)
+                    ->where('expense.amount', '<=', 0)
                     ->sum("amount") * -1;
             }
 

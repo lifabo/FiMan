@@ -8,8 +8,10 @@ $(document).ready(function () {
     }
 
     let CanvasExpensesAmountPerCategoryCurrentMonth = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonth");
-    let CanvasExpensesAmountPerCategoryCurrentMonth2 = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonth2");
+    let CanvasExpensesAmountPerCategoryLast12Months = document.getElementById("CanvasExpensesAmountPerCategoryLast12Months");
+    let CanvasExpensesMonthlyBalanceLast12Months = document.getElementById("CanvasExpensesMonthlyBalanceLast12Months");
 
+    //#region expensesAmountPerCategoryCurrentMonth
     const categoryLabels = expensesAmountPerCategoryCurrentMonth.map(expense => expense.categoryTitle);
     const expenseAmounts = expensesAmountPerCategoryCurrentMonth.map(expense => expense.totalAmount);
 
@@ -54,7 +56,7 @@ $(document).ready(function () {
             }
         }
     });
-
+    //#endregion
 
     //#region expensesAmountPerCategoryPerMonthLast12Months
 
@@ -65,9 +67,9 @@ $(document).ready(function () {
     }
 
     // save as a set so that entries are unique and not duplicate
-    const months = [...new Set(expensesAmountPerCategoryPerMonthLast12Months.map(expense => expense.month))];
-    const categories = [...new Set(expensesAmountPerCategoryPerMonthLast12Months.map(expense => expense.categoryTitle))];
-    const datasetData = {};
+    let months = [...new Set(expensesAmountPerCategoryPerMonthLast12Months.map(expense => expense.month))];
+    let categories = [...new Set(expensesAmountPerCategoryPerMonthLast12Months.map(expense => expense.categoryTitle))];
+    let datasetData = {};
 
     // result will be a "map" having a maximum (maybe you have no expenses from 12 months ago, then it will be less) of 12 values per category,
     // each of the 12 values represents the total amount of a month in that category
@@ -85,7 +87,7 @@ $(document).ready(function () {
     });
 
     // save array of datasets in a form that is correct for chart.js
-    const datasets = categories.map(category => ({
+    let datasets = categories.map(category => ({
         label: category,
         data: datasetData[category],
         borderWidth: 2,
@@ -99,7 +101,7 @@ $(document).ready(function () {
         datasets[i].backgroundColor = colorForEachCategory[datasets[i].label];
     }
 
-    new Chart(CanvasExpensesAmountPerCategoryCurrentMonth2, {
+    new Chart(CanvasExpensesAmountPerCategoryLast12Months, {
         type: 'line',
         data: {
             labels: months,
@@ -118,12 +120,68 @@ $(document).ready(function () {
                 line: {
                     tension: 0.2
                 }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
             }
         },
     });
     //#endregion
 
+    //#region expensesMonthlyBalanceLast12Months
+    // Extrahiere die benötigten Werte für das Chart.js-Diagramm
+    var labels = [];  // Hier sollten die Monate stehen, z.B., "Jan", "Feb", ...
+    var positiveAmounts = [];
+    var negativeAmounts = [];
+    var totalAmounts = [];
 
+    // Annahme: Die PHP-Daten sind so strukturiert, dass sie durchlaufen werden können
+    expensesMonthlyBalanceLast12Months.forEach(function (item) {
+        labels.push(item.month);  // Annahme: Du hast ein Attribut mit dem Monat
+        positiveAmounts.push(item.allPositiveAmounts);
+        negativeAmounts.push(item.allNegativeAmounts);
+        totalAmounts.push(item.balance);
+    });
+
+    // Erstelle das Chart.js-Diagramm
+    //var ctx = document.getElementById('myChart').getContext('2d');
+
+    new Chart(CanvasExpensesMonthlyBalanceLast12Months, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Positive Amounts',
+                    data: positiveAmounts,
+                    borderColor: 'green',
+                    fill: false
+                },
+                {
+                    label: 'Negative Amounts',
+                    data: negativeAmounts,
+                    borderColor: 'red',
+                    fill: false
+                },
+                {
+                    label: 'Total Amounts',
+                    data: totalAmounts,
+                    borderColor: 'black',
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            elements: {
+                line: {
+                    tension: 0.2
+                }
+            },
+        }
+    });
+    //#endregion
 });
 
 
