@@ -13,6 +13,17 @@ $(document).ready(function () {
         $('#confirmDeleteModal').modal('show');
     }
 
+    //#region pagination
+    var currentPage = 1;
+
+
+
+
+    // disable next button when current page is last page
+
+    // disbale previous button when current page is the first page
+    //#endregion
+
     //#region prevent multiple form submitions
     let formSubmitted = false;
     document.getElementById("formAddEditExpense").addEventListener("submit", function (event) {

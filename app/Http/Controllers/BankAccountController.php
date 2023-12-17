@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\BankAccount;
 use App\Models\Expense;
+use App\Models\UserAccount;
 
 class BankAccountController extends Controller
 {
@@ -90,7 +91,8 @@ class BankAccountController extends Controller
             ->select("title", "description", "balance")
             ->first();
 
-        // bank account with $id does not exist
+
+        // bank account with $id does not exist or $id does not belong to current user
         if ($dbBankAccountData == null)
             return redirect("/bankAccounts");
         else {
@@ -161,9 +163,11 @@ class BankAccountController extends Controller
 
     public function deleteBankAccount($id)
     {
-        $dbBankAccountData = BankAccount::where("id", $id)->first();
+        $dbBankAccountData = BankAccount::where("id", $id)
+            ->where("userAccountID", session("loggedInUserID"))
+            ->first();
 
-        // bank account with $id does not exist
+        // bank account with $id does not exist or $id does not belong to current user
         if ($dbBankAccountData == null)
             return redirect("/bankAccounts");
         else {

@@ -4,54 +4,93 @@ $(document).ready(function () {
     for (let i = 0; i < allCategories.length; i++) {
         colorForEachCategory[allCategories[i].title] = getNextHexColor(i);
 
-        console.log(getNextHexColor(i));
+        //console.log(getNextHexColor(i));
     }
 
-    let CanvasExpensesAmountPerCategoryCurrentMonth = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonth");
+    let CanvasExpensesAmountPerCategoryCurrentMonthNegative = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonthNegative");
+    let CanvasExpensesAmountPerCategoryCurrentMonthPositive = document.getElementById("CanvasExpensesAmountPerCategoryCurrentMonthPositive");
     let CanvasExpensesAmountPerCategoryLast12Months = document.getElementById("CanvasExpensesAmountPerCategoryLast12Months");
     let CanvasExpensesMonthlyBalanceLast12Months = document.getElementById("CanvasExpensesMonthlyBalanceLast12Months");
 
     //#region expensesAmountPerCategoryCurrentMonth
-    const categoryLabels = expensesAmountPerCategoryCurrentMonth.map(expense => expense.categoryTitle);
-    const expenseAmounts = expensesAmountPerCategoryCurrentMonth.map(expense => expense.totalAmount);
+    //const categoryLabels = expensesAmountPerCategoryCurrentMonth.map(expense => expense.categoryTitle);
+    //const expenseAmounts = expensesAmountPerCategoryCurrentMonth.map(expense => expense.totalAmount);
 
-    replaceNullValue(categoryLabels, "Sonstiges");
+    var currentMonthPositiveAmountsExpenses = new Array();
+    var currentMonthPositiveAmountsLabels = new Array();
+    var currentMonthNegativeAmountsExpenses = new Array();
+    var currentMonthNegativeAmountsLabels = new Array();
+
+    // split expense amounts and category titles into positive and negative array
+    expensesAmountPerCategoryCurrentMonth.forEach(item => {
+        if (item.totalAmount >= 0) {
+            currentMonthPositiveAmountsExpenses.push(item.totalAmount);
+            currentMonthPositiveAmountsLabels.push(item.categoryTitle)
+        }
+        else {
+            currentMonthNegativeAmountsExpenses.push(item.totalAmount);
+            currentMonthNegativeAmountsLabels.push(item.categoryTitle)
+        }
+    });
+
+    replaceNullValue(currentMonthPositiveAmountsLabels, "Sonstiges");
+    replaceNullValue(currentMonthNegativeAmountsLabels, "Sonstiges");
 
     // add exactly as many background colors to the array as there are categories
-    const backgroundColors = [];
-    for (let i = 0; i < categoryLabels.length; i++) {
-        backgroundColors.push(colorForEachCategory[categoryLabels[i]]);
+    const backgroundColorsPositive = [];
+    const backgroundColorsNegative = [];
+    for (let i = 0; i < expensesAmountPerCategoryCurrentMonth.length; i++) {
+        if (expensesAmountPerCategoryCurrentMonth[i].totalAmount >= 0)
+            backgroundColorsPositive.push(colorForEachCategory[expensesAmountPerCategoryCurrentMonth[i].categoryTitle]);
+
+        backgroundColorsNegative.push(colorForEachCategory[expensesAmountPerCategoryCurrentMonth[i].categoryTitle]);
     }
 
-    let suggestedMax, suggestedMin;
+    let suggestedMaxPositive, suggestedMaxNegative, suggestedMinPositive, suggestedMinNegative;
+    suggestedMaxPositive = Math.max(...currentMonthPositiveAmountsExpenses) * 1.1;
+    suggestedMinPositive = Math.max(...currentMonthPositiveAmountsExpenses) * -0.1;
 
-    if (Math.max(...expenseAmounts) > 0)
-        suggestedMax = Math.max(...expenseAmounts) * 1.1;
-    else
-        suggestedMax = Math.min(...expenseAmounts) * -0.1;
+    suggestedMaxNegative = Math.min(...currentMonthNegativeAmountsExpenses) * -0.1;
+    suggestedMinNegative = Math.min(...currentMonthNegativeAmountsExpenses) * 1.1;
 
-    if (Math.min(...expenseAmounts) > 0)
-        suggestedMin = Math.max(...expenseAmounts) * -0.1;
-    else
-        suggestedMin = Math.min(...expenseAmounts) * 1.1;
-
-    new Chart(CanvasExpensesAmountPerCategoryCurrentMonth, {
+    new Chart(CanvasExpensesAmountPerCategoryCurrentMonthNegative, {
         type: 'bar',
         data: {
-            labels: categoryLabels,
+            labels: currentMonthNegativeAmountsLabels,
             datasets: [{
-                label: 'Aktueller Monat über alle Konten hinweg',
-                backgroundColor: backgroundColors,
-                data: expenseAmounts,
+                label: 'Ausgaben aktueller Monat, alle Konten',
+                backgroundColor: backgroundColorsNegative,
+                data: currentMonthNegativeAmountsExpenses,
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    suggestedMax: suggestedMax,
-                    suggestedMin: suggestedMin,
+                    suggestedMax: suggestedMaxNegative,
+                    suggestedMin: suggestedMinNegative,
                     reverse: true
+                }
+            }
+        }
+    });
+
+    new Chart(CanvasExpensesAmountPerCategoryCurrentMonthPositive, {
+        type: 'bar',
+        data: {
+            labels: currentMonthPositiveAmountsLabels,
+            datasets: [{
+                label: 'Einkünfte aktueller Monat, alle Konten',
+                backgroundColor: backgroundColorsPositive,
+                data: currentMonthPositiveAmountsExpenses,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    suggestedMax: suggestedMaxPositive,
+                    suggestedMin: suggestedMinPositive
                 }
             }
         }
@@ -131,22 +170,18 @@ $(document).ready(function () {
     //#endregion
 
     //#region expensesMonthlyBalanceLast12Months
-    // Extrahiere die benötigten Werte für das Chart.js-Diagramm
-    var labels = [];  // Hier sollten die Monate stehen, z.B., "Jan", "Feb", ...
+    var labels = [];
     var positiveAmounts = [];
     var negativeAmounts = [];
     var totalAmounts = [];
 
-    // Annahme: Die PHP-Daten sind so strukturiert, dass sie durchlaufen werden können
+    // traverse through each datapoint sent from the database and add to the corresponding datasets
     expensesMonthlyBalanceLast12Months.forEach(function (item) {
-        labels.push(item.month);  // Annahme: Du hast ein Attribut mit dem Monat
+        labels.push(item.month);
         positiveAmounts.push(item.allPositiveAmounts);
         negativeAmounts.push(item.allNegativeAmounts);
         totalAmounts.push(item.balance);
     });
-
-    // Erstelle das Chart.js-Diagramm
-    //var ctx = document.getElementById('myChart').getContext('2d');
 
     new Chart(CanvasExpensesMonthlyBalanceLast12Months, {
         type: 'line',
@@ -156,19 +191,22 @@ $(document).ready(function () {
                 {
                     label: 'Positive Amounts',
                     data: positiveAmounts,
-                    borderColor: 'green',
+                    borderColor: '#2A982F',
+                    backgroundColor: '#2A982F',
                     fill: false
                 },
                 {
                     label: 'Negative Amounts',
                     data: negativeAmounts,
-                    borderColor: 'red',
+                    borderColor: '#F5141C',
+                    backgroundColor: '#F5141C',
                     fill: false
                 },
                 {
                     label: 'Total Amounts',
                     data: totalAmounts,
                     borderColor: 'black',
+                    backgroundColor: 'black',
                     fill: false
                 }
             ]

@@ -91,7 +91,7 @@ class CategoryController extends Controller
             ->select("title")
             ->first();
 
-        // category with $id does not exist
+        // category with $id does not exist or $id does not belong to current user
         if ($dbCategoryData == null)
             return redirect("/categories");
         else {
@@ -154,9 +154,11 @@ class CategoryController extends Controller
 
     public function deleteCategory($id)
     {
-        $dbCategoryData = Category::where("id", $id)->first();
+        $dbCategoryData = Category::where("id", $id)
+            ->where("userAccountID", session("loggedInUserID"))
+            ->first();
 
-        // category with $id does not exist
+        // category with $id does not exist or $id does not belong to current user
         if ($dbCategoryData == null)
             return redirect("/categories");
         else {

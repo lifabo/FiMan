@@ -76,7 +76,17 @@
         </select>
     </form> --}}
 
-    <div class="table-responsive mt-5">
+    <nav aria-label="expense pages" class="mt-4">
+        <ul class="pagination">
+            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+
+    <div class="table-responsive">
         <table class="table table-hover table-bordered" id="tblExpenses">
             <thead>
                 <tr>

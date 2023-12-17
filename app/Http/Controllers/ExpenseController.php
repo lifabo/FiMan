@@ -157,13 +157,18 @@ class ExpenseController extends Controller
 
     public function editExpense($id)
     {
-        $dbExpenseData = Expense::where("id", $id)->first();
-        $dbCategoryOfExpense = Category::where("id", $dbExpenseData->categoryID)->first();
+        $dbExpenseData = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+            ->join("user_account", "user_account.id", "bank_account.userAccountID")
+            ->where("expense.id", $id)
+            ->where("user_account.id", session("loggedInUserID"))
+            ->first();
 
-        // expense with $id does not exist
+        // expense with $id does not exist or $id does not belong to current user
         if ($dbExpenseData == null)
             return redirect("/expenses");
         else {
+            $dbCategoryOfExpense = Category::where("id", $dbExpenseData->categoryID)->first();
+
             session()->put("currentExpenseEditingID", $id);
 
             return redirect("/expenses")->with([
@@ -223,9 +228,13 @@ class ExpenseController extends Controller
 
     public function deleteExpense($id)
     {
-        $dbExpenseData = Expense::where("id", $id)->first();
+        $dbExpenseData = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
+            ->join("user_account", "user_account.id", "bank_account.userAccountID")
+            ->where("expense.id", $id)
+            ->where("user_account.id", session("loggedInUserID"))
+            ->first();
 
-        // expense with $id does not exist
+        // expense with $id does not exist or $id does not belong to current user
         if ($dbExpenseData == null)
             return redirect("/expenses");
         else {
