@@ -26,7 +26,7 @@
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
-        data-bs-target="#categoryModal">Kategorie erstellen</button>
+        data-bs-target="#categoryModal" accesskey="a">Kategorie erstellen</button>
 
     <div id="alertDiv" class="alert d-none" role="alert">{{ session('status') }}</div>
 
@@ -103,12 +103,12 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button id="btnDismissChanges" class="btn btn-danger" type="button" data-bs-dismiss="modal">
+                        <button id="btnDismissChanges" class="btn btn-danger" type="button" data-bs-dismiss="modal" accesskey="d">
                             Verwerfen
                         </button>
 
                         <button class="btn btn-primary"
-                            type="submit">{{ session('shouldOpenModal') == 'edit' ? 'Bearbeiten' : 'Erstellen' }}
+                            type="submit" accesskey="s">{{ session('shouldOpenModal') == 'edit' ? 'Bearbeiten' : 'Erstellen' }}
                         </button>
                     </div>
                 </form>
