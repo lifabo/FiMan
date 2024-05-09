@@ -26,7 +26,7 @@
     </script>
 
     <button type="button" id="btnOpenAddModal" class="btn btn-primary mb-4" data-bs-toggle="modal"
-        data-bs-target="#bankAccountModal">Konto erstellen</button>
+        data-bs-target="#bankAccountModal" accesskey="a">Konto erstellen</button>
 
     <div class="text-center">
         <p id="txtBalance" class="fw-bolder display-3 mb-0 {{ $balanceAllAccounts < 0 ? 'text-danger' : 'text-success' }}">
@@ -125,12 +125,12 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button id="btnDismissChanges" class="btn btn-danger" type="button" data-bs-dismiss="modal">
+                        <button id="btnDismissChanges" class="btn btn-danger" type="button" data-bs-dismiss="modal" accesskey="d">
                             Verwerfen
                         </button>
 
                         <button class="btn btn-primary"
-                            type="submit">{{ session('shouldOpenModal') == 'edit' ? 'Bearbeiten' : 'Erstellen' }}
+                            type="submit" accesskey="s">{{ session('shouldOpenModal') == 'edit' ? 'Bearbeiten' : 'Erstellen' }}
                         </button>
                     </div>
                 </form>
