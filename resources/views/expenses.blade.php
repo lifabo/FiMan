@@ -76,15 +76,26 @@
         </select>
     </form> --}}
 
-    <nav aria-label="expense pages" class="mt-4">
+    {{-- <nav aria-label="expense pages" class="mt-4">
         <ul class="pagination">
-            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#hallo123">Previous</a></li>
             <li class="page-item"><a class="page-link" href="#">1</a></li>
             <li class="page-item"><a class="page-link" href="#">2</a></li>
             <li class="page-item"><a class="page-link" href="#">3</a></li>
             <li class="page-item"><a class="page-link" href="#">Next</a></li>
         </ul>
-    </nav>
+    </nav> --}}
+
+    <form action="/expenses" method="post" id="formSelectExpenseCategory">
+        @csrf
+        <select class="form-select mb-3" id="selectExpenseCategory" name="categoryID">
+            @foreach ($categories as $category)
+                <option value="{{ $bankAccount->id }}"
+                    {{ session()->get('currentSelectedBankAccountID') == $bankAccount->id ? 'selected' : '' }}>
+                    {{ $category->title }}</option>
+            @endforeach
+        </select>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-hover table-bordered" id="tblExpenses">

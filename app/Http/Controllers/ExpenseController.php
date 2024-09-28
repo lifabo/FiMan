@@ -18,6 +18,9 @@ class ExpenseController extends Controller
 
             // user has manually selected a bank account, so the selected one should be loaded
             if ($request->filled("bankAccountID")) {
+                // check if bankAccountID belongs to currently logged in user
+                // BankAccount::where("id", $request->input("bankAccountID"))
+                // ->where("userAccountID", )
                 $bankAccountID = $request->input("bankAccountID");
             }
             // first load of site, user has not manually selected and there is no session variable for bank account id yet,
@@ -161,6 +164,17 @@ class ExpenseController extends Controller
             ->join("user_account", "user_account.id", "bank_account.userAccountID")
             ->where("expense.id", $id)
             ->where("user_account.id", session("loggedInUserID"))
+            ->select(
+                "expense.id",
+                "expense.timestamp",
+                "expense.amount",
+                "expense.description",
+                "expense.categoryID",
+                "expense.bankAccountID",
+                "bank_account.id",
+                "bank_account.userAccountID",
+                "user_account.id"
+            )
             ->first();
 
         // expense with $id does not exist or $id does not belong to current user

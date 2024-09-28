@@ -26,18 +26,37 @@ class LoginController extends Controller
     {
         $formUserName = $request->input("username");
         $formPassword = $request->input("password");
-        $dbUserData = UserAccount::where('username', $formUserName)
-            ->select("id", "username", "passwd")
-            ->first();
+        $dbUserData = "";
 
-        // save form data for one more http request in case the verification fails
-        session()->flash("username", $formUserName);
-        session()->flash("password", $formPassword);
+        $error = false;
+        $status = "";
 
-        // user does not exist or password is wrong
-        if ($dbUserData == null || !Hash::check($formPassword, $dbUserData->passwd)) {
-            session()->flash("status", "Benutzername oder Passwort falsch.");
-            return redirect("/login");
+        // input string of username or password too long
+        if (mb_strlen($formUserName) > config("formValidation.maxInputLengthShort") || mb_strlen($formPassword) > config("formValidation.maxInputLengthShort")) {
+            $status = "Ungültige Eingabe, bitte versuche es erneut.";
+            $error = true;
+        }
+        // else continue checks
+        else {
+            $dbUserData = UserAccount::where('username', $formUserName)
+                ->select("id", "username", "passwd")
+                ->first();
+
+            // save form data for one more http request in case the verification fails
+            session()->flash("username", $formUserName);
+            session()->flash("password", $formPassword);
+
+            // user does not exist or password is wrong
+            if ($dbUserData == null || !Hash::check($formPassword, $dbUserData->passwd)) {
+                $status = "Benutzername oder Passwort falsch.";
+                $error = true;
+            }
+        }
+
+        if ($error) {
+            return redirect("/login")->with([
+                "status" => $status
+            ]);
         }
         // login successful
         else {
