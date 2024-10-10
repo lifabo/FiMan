@@ -23,14 +23,16 @@ class StatisticController extends Controller
                 ->leftJoin("category", "expense.categoryID", "category.id")
                 ->where("bank_account.userAccountID", session("loggedInUserID"))
                 ->whereMonth("timestamp", now()->month)
+                ->whereYear("timestamp", now()->year)
                 ->groupBy("category.title")
                 ->selectRaw("category.title as categoryTitle, SUM(amount) as totalAmount")
                 ->get();
 
+
             $expensesAmountPerCategoryPerMonthLast12Months = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
                 ->leftJoin("category", "expense.categoryID", "category.id")
                 ->where("bank_account.userAccountID", session("loggedInUserID"))
-                ->whereRaw("expense.timestamp >= DATE_SUB(NOW(), INTERVAL 12 MONTH)")
+                ->whereRaw("expense.timestamp >= DATE_SUB(NOW(), INTERVAL 11 MONTH)")
                 ->selectRaw("category.title as categoryTitle, SUM(amount) as totalAmount, MONTHNAME(expense.timestamp) as month")
                 ->groupBy("category.title")
                 ->groupBy(DB::raw('MONTHNAME(expense.timestamp)'))
@@ -39,7 +41,7 @@ class StatisticController extends Controller
 
             $expensesMonthlyBalanceLast12Months = Expense::join("bank_account", "expense.bankAccountID", "bank_account.id")
                 ->where("bank_account.userAccountID", session("loggedInUserID"))
-                ->whereRaw("expense.timestamp >= DATE_SUB(NOW(), INTERVAL 12 MONTH)")
+                ->whereRaw("expense.timestamp >= DATE_SUB(NOW(), INTERVAL 11 MONTH)")
                 ->selectRaw("MONTHNAME(expense.timestamp) as month, SUM(CASE WHEN expense.amount >= 0 THEN expense.amount ELSE 0 END) AS allPositiveAmounts,
                     SUM(CASE WHEN expense.amount < 0 THEN expense.amount ELSE 0 END) AS allNegativeAmounts,
                     SUM(expense.amount) AS balance")
